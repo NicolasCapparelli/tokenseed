@@ -49,6 +49,8 @@ Rules for the port:
   
   Extend `tools/check.ps1` so it also installs, typechecks and tests the TypeScript packages. `check.ps1` must still exit 0 overall.
 
+  On the owner's PC, pnpm is only reachable as `corepack pnpm`; a bare `pnpm` fails, and `corepack enable` hits EPERM. So `check.ps1` must invoke `corepack pnpm`, and package scripts must not shell out to bare `pnpm`.
+
 ### 2. `packages/aurora_react`: the React adapter (`@aurora/react`)
 
 This is the web counterpart of `aurora_flutter`'s controller, scope and engine. It does not include the Material bridge. It needs:
@@ -61,6 +63,8 @@ This is the web counterpart of `aurora_flutter`'s controller, scope and engine. 
   - The naming must be documented and stable, for example `--aurora-colors-primary`.
   - It needs a prefix option, and a pure function that returns the declarations as a string or object, so it can also run outside React.
   - Texture value types map to CSS: dimensions keep their units; durations, cubic-bezier easing, font families and weights, borders and shadows all become CSS values. Theme color references inside textures resolve against the active variant.
+- **Live theming without thrash.** TokenSeed's chrome follows a system the user is editing, so a provider or fixed scope can get a new variant on every slider frame. That path must write CSS variables to its element imperatively. It must not re-render the subtree, and it must not rewrite variables whose values didn't change. Add a test that proves both.
+- **`react` ^19 as a peer dependency**, not a dependency.
 - **Tests** with Vitest and Testing Library on jsdom. Cover selection changes, system appearance changes, rejected selections leaving the UI unchanged, nested fixed scopes, and emitter output for both appearances and every texture type.
 
 ### 3. A TypeScript target for app-owned vendoring
