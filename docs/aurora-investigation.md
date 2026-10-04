@@ -1,5 +1,7 @@
 # Aurora: current state and what TokenSeed needs from it
 
+> **Update:** the uncommitted `feat/styles` work described below was later renamed textures and merged into Aurora `main`. The decisions at the end are answered in `docs/handoff.md` §6, and the work is briefed in `docs/aurora-port-prompt.md`.
+
 Investigated on 2026-10-04 by reading `C:\Users\cappa\Desktop\Projects\aurora` and running its test suites. Nothing in it was changed.
 
 ## What Aurora is

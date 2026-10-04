@@ -14,6 +14,7 @@ Written 2026-10-04 at the end of a long session, so the next one can start cold.
 | Design brief | `docs/design-brief.md`. Section 0 is the design direction; it is now the spec for the UI, not a brief for a designer. |
 | Knob catalog | `docs/knobs.md`, generated from code by a test |
 | Aurora findings | `docs/aurora-investigation.md` |
+| Prompt for the Aurora agent | `docs/aurora-port-prompt.md`: the TypeScript port, the React adapter, TS vendoring and the TokenSeed → Aurora bundle |
 | Research | `docs/research/research-01..04.md` |
 
 Running it: `pnpm install && pnpm dev` (web on :5173), `pnpm -r test`, `pnpm -r typecheck`. On Nico's PC pnpm isn't on PATH: use `corepack pnpm …`. pnpm also asks to approve esbuild's build script; that warning is harmless.
@@ -106,12 +107,13 @@ Other parts of the concept also need engine support:
 The full findings are in `docs/aurora-investigation.md`. In short:
 - Aurora is a strict runtime theming engine: one contract, many themes with light and dark variants, and a separately selectable style layer.
 - It has a Material Color Utilities generator, a DTCG subset and recipes.
+- **Update 2026-10-04 evening:** the style layer was renamed **textures** (`AuroraTextures`) and merged into Aurora `main` (commit `05cc44e`). It now has 122 core and 30 adapter tests, plus texture specs and fixtures (`spec/texture-*.json`, `spec/texture-recipe-v1.md`). Read "style" in the investigation as "texture".
 - **Only the Dart and Flutter implementations exist.** They are about 4.1k lines of core and 730 of adapter, and all tests pass (118 and 29).
 - The specs and conformance fixtures in `spec/` were written for ports.
 
 ### The plan
 
-1. **Nico commits and pushes Aurora's `feat/styles`** (decision 1 below). Today the whole style layer is uncommitted on his PC.
+1. ~~Nico pushes Aurora's style work.~~ Done: merged as textures.
 2. **Port the Aurora core to `@aurora/core` in TypeScript**, in the Aurora repo as `packages/aurora_ts`. Make the existing `spec/` fixtures pass unchanged.
    - Add a TS emitter to `tools/generate_foundation.py`.
    - Port these modules: values and tokens, the contract and validation, themes, styles, runtime, contrast, the DTCG, style and recipe codecs, and the generator.
@@ -124,8 +126,8 @@ The full findings are in `docs/aurora-investigation.md`. In short:
    - system appearance through `matchMedia`
    - a fixed scope for galleries and thumbnails
    - a CSS custom-property emitter in place of the Flutter Material bridge
-4. **Put the TokenSeed web chrome on Aurora.** Define TokenSeed's app contract: Aurora's foundation plus TokenSeed extensions for glass, panel radius and the like. Ship a default theme, and a live theme derived from the system being edited, so the chrome takes on the user's colors. Consume the packages as a pnpm workspace link or vendored copy until the npm decision is made.
-5. **Optional, and cheap:** add an "Aurora theme" export to TokenSeed. It would map TokenSeed's semantic roles onto Aurora's 58 color roles and 29 style tokens, so Flutter apps can use a TokenSeed system directly.
+4. **Put the TokenSeed web chrome on Aurora.** Define TokenSeed's app contract: Aurora's foundation plus TokenSeed extensions for glass, panel radius and the like. Ship a default theme, and a live theme derived from the system being edited, so the chrome takes on the user's colors. Consume the packages as an app-owned vendored snapshot under `vendor/aurora/`, exported by Aurora's `tools/vendor.py` in its new TypeScript mode. They stay private; there is no npm.
+5. **Aurora bundle export (required, and must be solid).** Nico wants the TokenSeed → Aurora pipeline built well because the tools are meant to work together. Aurora defines the format (`spec/bundle-v1.md`), its validators and fixtures, and `aurora install --bundle`. TokenSeed adds an "Aurora (Flutter)" export that maps its semantic roles onto Aurora's 58 color roles and 29 texture tokens, following Aurora's producer mapping guide. P3 colors become 8-bit sRGB and high-contrast modes are dropped. TokenSeed's tests run `@aurora/core`'s bundle validator on the exports of every preset.
 
 ### Do not
 
@@ -133,28 +135,23 @@ Do not replace TokenSeed's generator with Aurora's unless Nico explicitly choose
 
 ## 5. Suggested order of PRs
 
-1. **Aurora:** push `feat/styles`, which Nico does or authorizes.
-2. **Aurora:** `packages/aurora_ts` core and fixtures, in several PRs. Suggested split: values, contract and themes; runtime; codecs and recipes; generator.
-3. **Aurora:** `packages/aurora_react`.
+1. ~~**Aurora:** push the style work.~~ Done (textures, on `main`).
+2. **Aurora agent** (prompt: `docs/aurora-port-prompt.md`), on Aurora branch `feat/typescript-port`: `packages/aurora_ts`, `packages/aurora_react`, the TS vendoring mode, and the bundle spec and installer.
+3. **TokenSeed:** vendor `@aurora/core` and `@aurora/react` with `tools/vendor.py`.
 4. **TokenSeed:** core additions for the new UI: the area map, featured knobs and area summaries. Small and test-covered.
 5. **TokenSeed:** the new web shell: Start, Studio frame and depth switch, using Aurora for chrome theming. The existing state and storage carry over.
 6. **TokenSeed:** Grow and Craft panels, specimen templates, the pick strip.
 7. **TokenSeed:** the Versions drawer with split compare, the Export drawer, the Library posters.
-8. **TokenSeed (optional):** an Aurora theme exporter.
+8. **TokenSeed:** the Aurora bundle exporter, validated by `@aurora/core` in tests.
 
 Steps 4 to 7 can start before the port lands: theme the chrome with plain CSS variables derived from the system, then swap in Aurora in step 5 or at the end.
 
-## 6. Decisions needed from Nico
+## 6. Decisions (answered by Nico, 2026-10-04 23:54Z)
 
-1. **Push Aurora `feat/styles`, and confirm the name "style".** The port should start from that work, and cloud sessions can't see it until it's pushed.
-2. **What "built on Aurora" means.**
-   - (i) Aurora themes TokenSeed's own UI, including taking on the user's system.
-   - (ii) Aurora's generator replaces TokenSeed's.
-   - (iii) TokenSeed exports Aurora themes for Flutter apps.
-   
-   The recommendation is (i) plus (iii), which the plan above assumes.
-3. **Where the TS port lives.** The recommendation is the Aurora repo (`packages/aurora_ts`, `packages/aurora_react`), consumed by TokenSeed as a workspace link or vendored copy.
-4. **Publish to npm, or keep it private.**
+1. Aurora's style work is pushed; it is now **textures** on `main`.
+2. "Built on Aurora" means **(i)** Aurora themes TokenSeed's own UI, including taking on the user's system, plus **(iii)** TokenSeed exports Aurora themes, and the pipeline must be well built. **TokenSeed keeps its own generator** (not ii).
+3. The TS port lives in the Aurora repo (`packages/aurora_ts`, `packages/aurora_react`).
+4. **Private for now**, maybe public later. No npm; TokenSeed consumes a vendored snapshot.
 
 ## 7. Working conventions
 
