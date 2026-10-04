@@ -1,9 +1,10 @@
+import { isColor } from "./color";
 import { catalog, knobById } from "./knobs/catalog";
 import { presetById } from "./knobs/presets";
 import { traitById } from "./knobs/traits";
 import type { Influence, Knob, KnobValue } from "./knobs/types";
 
-export const ENGINE_VERSION = "0.1.0";
+export const ENGINE_VERSION = "0.2.0";
 
 /** Everything a user chose. Stored next to the tokens so a system can be regenerated, diffed and forked. */
 export interface Seed {
@@ -63,8 +64,14 @@ export function coerce(knob: Knob, value: unknown): KnobValue | undefined {
     }
     case "boolean":
       return typeof value === "boolean" ? value : undefined;
+    case "set":
+      return Array.isArray(value) ? knob.options.map((o) => o.value).filter((v) => value.includes(v)) : undefined;
     case "colorList":
-      return Array.isArray(value) ? value.filter((v) => typeof v === "string").slice(0, knob.max) : undefined;
+      return Array.isArray(value) ? value.filter((v) => typeof v === "string" && isColor(v)).slice(0, knob.max) : undefined;
+    case "color":
+      // Empty means "let the engine choose", which a required color can't do.
+      if (typeof value !== "string") return undefined;
+      return value === "" ? (knob.required ? undefined : "") : isColor(value) ? value : undefined;
     default:
       return typeof value === "string" ? value : undefined;
   }

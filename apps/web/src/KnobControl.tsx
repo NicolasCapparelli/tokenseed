@@ -56,8 +56,31 @@ export function KnobControl({ knob, value, source, explicit, locked, onChange, o
     case "boolean":
       input = <input type="checkbox" checked={Boolean(value)} onChange={(e) => onChange(e.target.checked)} aria-label={knob.label} />;
       break;
+    case "set": {
+      const chosen = value as string[];
+      input = (
+        <div className="chips" role="group" aria-label={knob.label}>
+          {knob.options.map((o) => {
+            const on = chosen.includes(o.value);
+            return (
+              <button key={o.value} className={`chip${on ? " on" : ""}`} aria-pressed={on}
+                onClick={() => onChange(on ? chosen.filter((v) => v !== o.value) : [...chosen, o.value])}>
+                {o.label}
+              </button>
+            );
+          })}
+        </div>
+      );
+      break;
+    }
     case "color":
-      input = <input type="color" value={String(value) || "#000000"} onChange={(e) => onChange(e.target.value)} aria-label={knob.label} />;
+      input = (
+        <div className="color-list">
+          <input type="color" value={String(value) || "#888888"} onChange={(e) => onChange(e.target.value)} aria-label={knob.label} />
+          {!value && <small className="knob-help">Chosen for you</small>}
+          {Boolean(value) && !knob.required && <button className="link" onClick={() => onChange("")}>Let the engine choose</button>}
+        </div>
+      );
       break;
     case "colorList": {
       const list = value as string[];

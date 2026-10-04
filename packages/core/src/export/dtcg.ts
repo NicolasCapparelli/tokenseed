@@ -32,6 +32,8 @@ export function toDtcgFiles(system: GeneratedSystem): Record<string, string> {
       name: system.name,
       engine: system.seed.engine,
       modes: system.modes,
+      extras: system.extras,
+      meta: system.meta,
       recipes: system.recipes,
       guidelines: system.guidelines,
       checks: system.checks,
@@ -48,7 +50,7 @@ export function toDtcgFiles(system: GeneratedSystem): Record<string, string> {
     sets: { base: { sources: [{ $ref: "tokens/base.tokens.json" }] } },
     modifiers: {
       theme: {
-        description: "Color mode",
+        description: "Color mode. -hc contexts are high-contrast variants.",
         contexts: Object.fromEntries(system.modes.map((m) => [m, [{ $ref: `tokens/${m}.tokens.json` }]])),
         default: system.modes[0],
       },

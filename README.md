@@ -20,6 +20,8 @@ packages/core   framework-free TypeScript engine: knobs, traits, presets, seed r
                 generators, variations, exporters
 apps/web        React + Vite editor
 docs/research   the design research behind the product
+docs/knobs.md   every knob, trait and preset (generated from the catalog)
+docs/design-brief.md   what the app is and does, written for UI mockups
 ```
 
 ## Develop
@@ -37,10 +39,22 @@ pnpm typecheck
    locks and a random seed.
 2. **Resolution** layers values, lowest first: knob defaults, the product-type preset, style presets,
    traits, explicit knobs. Every value remembers where it came from.
-3. **Generators** (palette, semantic color, typography, spacing, shape, elevation, motion, recipes) run
+3. **Generators** (palette, semantic color, data viz, typography, spacing, layout, shape, elevation,
+   motion, states, media, recipes, content) run
    in dependency order and write DTCG tokens, each tagged with the generator and knobs that produced it.
 4. **Exporters** turn the result into files.
 
 Knobs, traits, presets and generators are all registered data in `packages/core/src/knobs` and
 `packages/core/src/generators`. The editor builds its controls from the knob definitions, so adding
 a knob means adding one definition.
+
+After changing knobs, traits or presets, regenerate the catalog doc with `UPDATE_DOCS=1 pnpm -r test`
+(PowerShell: `$env:UPDATE_DOCS=1; pnpm -r test`).
+
+## Systems are repositories
+
+Each system is a repository of snapshots, like git (`packages/core/src/repo.ts`): save a snapshot of the
+current seed, branch to experiment, tag releases, compare any snapshot with the current state (inputs and
+resulting tokens), restore old versions, and fork a whole system with its history. Snapshot ids are content
+hashes. The web app keeps a library of repositories in IndexedDB and moves them between browsers as
+`.tokenseed` files.

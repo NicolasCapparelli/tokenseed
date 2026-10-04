@@ -13,14 +13,15 @@ export type Control =
   | "segmented"
   | "select"
   | "toggle"
-  | "visualChoice";
+  | "visualChoice"
+  | "multiSelect";
 
 export interface KnobOption<V extends string = string> {
   value: V;
   label: string;
 }
 
-interface KnobBase {
+export interface KnobBase {
   /** Namespaced and permanent. A rename ships a migration, never an in-place change. */
   id: string;
   label: string;
@@ -80,7 +81,14 @@ export interface TextKnob extends KnobBase {
   default: string;
 }
 
-export type Knob = EnumKnob | NumberKnob | BooleanKnob | ColorKnob | ColorListKnob | FontKnob | TextKnob;
+/** Any subset of a fixed list of options, e.g. which optional component recipes to include. */
+export interface SetKnob extends KnobBase {
+  type: "set";
+  options: KnobOption[];
+  default: string[];
+}
+
+export type Knob = EnumKnob | NumberKnob | BooleanKnob | ColorKnob | ColorListKnob | FontKnob | TextKnob | SetKnob;
 
 /** How a trait position (0..1) maps onto one knob. */
 export type Influence =

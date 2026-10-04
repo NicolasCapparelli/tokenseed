@@ -11,10 +11,12 @@ export type TokenType =
   | "shadow"
   | "typography"
   | "border"
-  | "transition";
+  | "transition"
+  | "strokeStyle"
+  | "gradient";
 
 export interface ColorValue {
-  colorSpace: "srgb";
+  colorSpace: "srgb" | "display-p3";
   components: [number, number, number];
   alpha?: number;
   hex: string;
@@ -41,6 +43,10 @@ export const EXT = "com.tokenseed";
 export interface Provenance {
   generator: string;
   knobs: string[];
+  /** Gradient angle in degrees; DTCG gradients have no direction of their own. */
+  angle?: number;
+  /** Fluid size range, exported to CSS as clamp(). */
+  fluid?: { min: number; max: number; minViewport: number; maxViewport: number };
 }
 
 export interface Token {
@@ -55,7 +61,10 @@ export interface TokenTree {
   [key: string]: TokenTree | Token;
 }
 
-export type ModeName = "light" | "dark";
+/** "light", "dark", and their high-contrast variants "light-hc" and "dark-hc". */
+export type ModeName = "light" | "dark" | "light-hc" | "dark-hc";
+export const isDarkMode = (m: ModeName) => m.startsWith("dark");
+export const isHighContrast = (m: ModeName) => m.endsWith("-hc");
 
 export const isToken = (n: TokenTree | Token | undefined): n is Token => !!n && typeof n === "object" && "$value" in n;
 export const isAlias = (v: unknown): v is string => typeof v === "string" && /^\{[^{}]+\}$/.test(v);

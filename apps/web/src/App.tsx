@@ -1,20 +1,27 @@
 import {
   catalog,
+  currentBranch,
   flatten,
   generate,
+  isDirty,
+  knobGroups,
   stylePresets,
   traits,
   variations,
   type GeneratedSystem,
   type Knob,
+  type KnobValue,
+  type ModeName,
   type Seed,
 } from "@tokenseed/core";
 import { useEffect, useMemo, useState } from "react";
 import { ExportPanel } from "./ExportPanel";
 import { loadFonts } from "./fonts";
+import { History } from "./History";
 import { KnobControl } from "./KnobControl";
+import { Library } from "./Library";
 import { Specimen } from "./Specimen";
-import { useSeed, type Level } from "./state";
+import { useWorkspace, type Level } from "./state";
 
 const LEVELS: { id: Level; name: string; subtitle: string }[] = [
   { id: "sprout", name: "Sprout", subtitle: "Give us a color and a vibe, get a full system" },
@@ -22,17 +29,29 @@ const LEVELS: { id: Level; name: string; subtitle: string }[] = [
   { id: "craft", name: "Craft", subtitle: "Every knob and token, by hand" },
 ];
 
-const GROUP_ORDER = [...new Set(catalog.map((k) => k.group))];
-
 function fontsOf(system: GeneratedSystem): string[] {
-  return ["heading", "body", "mono"].map((f) => {
-    const fam = (system.base.font as Record<string, Record<string, { $value: string[] }>>).family![f]!.$value;
-    return fam[0]!;
-  });
+  const families = (system.base.font as Record<string, Record<string, { $value: string[] }>>).family!;
+  return Object.values(families).map((f) => f.$value[0]!);
 }
 
+/** A knob is shown only when every knob it depends on has one of the listed values. */
+const visible = (k: Knob, values: Record<string, KnobValue>) =>
+  !k.visibleWhen || Object.entries(k.visibleWhen).every(([id, allowed]) => allowed.some((a) => a === values[id]));
+
 export function App() {
-  const { seed, setSeed, setKnob, setTrait, toggleLock, togglePreset, reset } = useSeed();
+  const ws = useWorkspace();
+  if (!ws.repo) return <div className="app loading">Opening your library…</div>;
+  return <Editor ws={ws as Workspace} />;
+}
+
+type Workspace = ReturnType<typeof useWorkspace> & { repo: NonNullable<ReturnType<typeof useWorkspace>["repo"]> };
+
+function Editor({ ws }: { ws: Workspace }) {
+  const { repo, setSeed, setKnob, setTrait, toggleLock, togglePreset, vcs, library } = ws;
+  const seed = repo.working;
+  const [view, setView] = useState<"edit" | "library">("edit");
+  const [showHistory, setShowHistory] = useState(false);
+  const [highContrast, setHighContrast] = useState(false);
   const [level, setLevel] = useState<Level>("sprout");
   const [mode, setMode] = useState<"light" | "dark">(() =>
     window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light",
@@ -48,8 +67,12 @@ export function App() {
 
   useEffect(() => loadFonts([system, ...options.map((o) => o.system)].flatMap(fontsOf)), [system, options]);
 
-  const knobsFor = (lvl: Level) => catalog.filter((k) => k.levels.includes(lvl));
+  const knobsFor = (lvl: Level) => catalog.filter((k) => k.levels.includes(lvl) && visible(k, system.resolved.values));
   const failing = system.checks.filter((c) => !c.pass);
+  const hasHc = system.modes.some((m) => m.endsWith("-hc"));
+  const previewMode = (highContrast && hasHc ? `${mode}-hc` : mode) as ModeName;
+  const dirty = isDirty(repo);
+  const branchName = currentBranch(repo);
 
   const control = (k: Knob) => (
     <KnobControl
@@ -65,7 +88,7 @@ export function App() {
   );
 
   const groupsFor = (lvl: Level) =>
-    GROUP_ORDER.map((g) => [g, knobsFor(lvl).filter((k) => k.group === g && !(lvl === "grow" && k.required))] as const).filter(([, ks]) => ks.length);
+    knobGroups.map((g) => [g, knobsFor(lvl).filter((k) => k.group === g && !(lvl === "grow" && k.required))] as const).filter(([, ks]) => ks.length);
 
   return (
     <div className="app" data-app-theme={mode}>
@@ -73,9 +96,13 @@ export function App() {
         <div className="brand">
           <span className="logo" aria-hidden>❋</span> TokenSeed
         </div>
-        <nav className="levels" aria-label="Level">
+        <button className={`repo-button${view === "library" ? " on" : ""}`} onClick={() => setView(view === "library" ? "edit" : "library")} title="All your systems">
+          <strong>{repo.name}</strong>
+          <small>{branchName ?? "viewing a snapshot"}{dirty ? " · unsaved changes" : ""}</small>
+        </button>
+        <nav className="levels" aria-label="Level" hidden={view === "library"}>
           {LEVELS.map((l) => (
-            <button key={l.id} className={level === l.id ? "on" : ""} onClick={() => { setLevel(l.id); setExploreGroup(null); }} title={l.subtitle}>
+            <button key={l.id} className={level === l.id ? "on" : ""} onClick={() => { setLevel(l.id); setExploreGroup(null); setView("edit"); }} title={l.subtitle}>
               <strong>{l.name}</strong>
               <small>{l.subtitle}</small>
             </button>
@@ -87,11 +114,23 @@ export function App() {
               <button key={m} role="radio" aria-checked={mode === m} className={mode === m ? "on" : ""} onClick={() => setMode(m)}>{m}</button>
             ))}
           </div>
-          <button onClick={() => confirm("Start a new system? This replaces the current one.") && reset()}>New</button>
+          {hasHc && (
+            <label className="hc-toggle"><input type="checkbox" checked={highContrast} onChange={(e) => setHighContrast(e.target.checked)} /> High contrast</label>
+          )}
+          <button className={showHistory ? "on" : ""} onClick={() => { setShowHistory(!showHistory); setView("edit"); }} aria-pressed={showHistory}>
+            History{dirty && <span className="dot" aria-label="unsaved changes" />}
+          </button>
         </div>
       </header>
 
-      <div className="layout">
+      {ws.error && (
+        <div className="banner" role="alert">{ws.error}<button className="link" onClick={ws.clearError}>Dismiss</button></div>
+      )}
+
+      {view === "library" ? (
+        <main className="main"><Library lib={library} currentId={repo.id} mode={mode} onOpen={() => setView("edit")} /></main>
+      ) : (
+      <div className={`layout${showHistory ? " with-history" : ""}`}>
         <aside className="panel">
           {level === "sprout" && (
             <>
@@ -155,7 +194,7 @@ export function App() {
                 <div className="option-grid">
                   {options.map((o, i) => (
                     <div key={i} className="option" onClick={() => { setSeed(o.seed); setShuffle(0); }}>
-                      <Specimen system={o.system} mode={mode} compact />
+                      <Specimen system={o.system} mode={previewMode} compact />
                       <button className="option-cta">Use this</button>
                     </div>
                   ))}
@@ -172,18 +211,24 @@ export function App() {
                 {failing.length ? `${failing.length} contrast issue${failing.length > 1 ? "s" : ""}` : `All ${system.checks.length} contrast checks pass`}
               </span>
             </div>
-            <Specimen system={system} mode={mode} />
+            <Specimen system={system} mode={previewMode} />
             {system.resolved.warnings.length > 0 && <p className="knob-help">{system.resolved.warnings.join(". ")}</p>}
           </section>
 
-          {level === "craft" && <TokenTable system={system} mode={mode} />}
+          {level === "craft" && <TokenTable system={system} mode={previewMode} />}
 
           <section>
             <div className="section-head"><h2>Export</h2></div>
             <ExportPanel system={system} />
           </section>
         </main>
+        {showHistory && (
+          <aside className="panel history-panel" aria-label="History">
+            <History repo={repo} system={system} vcs={vcs} />
+          </aside>
+        )}
       </div>
+      )}
     </div>
   );
 }
@@ -204,7 +249,7 @@ function SeedEditor({ seed, onApply }: { seed: Seed; onApply: (s: Seed) => void 
   );
 }
 
-function TokenTable({ system, mode }: { system: GeneratedSystem; mode: "light" | "dark" }) {
+function TokenTable({ system, mode }: { system: GeneratedSystem; mode: ModeName }) {
   const m = system.modes.includes(mode) ? mode : system.modes[0]!;
   const rows = [...flatten(system.themes[m] ?? {}).map(([p, t]) => [p, t, m] as const), ...flatten(system.base).map(([p, t]) => [p, t, "base"] as const)];
   return (
