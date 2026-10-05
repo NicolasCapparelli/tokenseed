@@ -1,0 +1,135 @@
+/* The specimen is styled only through the generated --ts-* variables. */
+.specimen {
+  background: var(--ts-color-surface-page);
+  color: var(--ts-color-text-primary);
+  font-family: var(--ts-typography-body-md-font-family);
+  font-size: var(--ts-typography-body-md-font-size);
+  line-height: var(--ts-typography-body-md-line-height);
+  border-radius: var(--ts-radius-sheet);
+  padding: var(--ts-space-section-sm);
+  display: grid;
+  gap: var(--ts-space-gap-lg);
+  overflow: hidden;
+}
+.specimen--compact { padding: var(--ts-space-inset-xl); gap: var(--ts-space-gap-md); pointer-events: none; }
+.specimen--compact .sp-display { font-size: var(--ts-typography-headline-md-font-size); line-height: var(--ts-typography-headline-md-line-height); }
+.specimen--compact .sp-hero { padding: var(--ts-space-inset-lg); }
+.specimen--compact .sp-body { font-size: var(--ts-typography-body-sm-font-size); }
+
+.sp-hero {
+  background: var(--ts-color-primary-subtle);
+  color: var(--ts-color-primary-onSubtle);
+  border-radius: var(--ts-radius-card);
+  padding: var(--ts-space-inset-xl);
+  display: grid;
+  gap: var(--ts-space-gap-sm);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.sp-hero .sp-secondary { color: inherit; opacity: 0.85; }
+.sp-overline {
+  font-family: var(--ts-typography-label-sm-font-family);
+  font-size: var(--ts-typography-label-sm-font-size);
+  font-weight: var(--ts-typography-label-sm-font-weight);
+  letter-spacing: var(--ts-typography-label-sm-letter-spacing);
+  text-transform: uppercase;
+}
+.sp-display {
+  margin: 0;
+  font-family: var(--ts-typography-display-sm-font-family);
+  font-size: var(--ts-typography-display-sm-font-size);
+  font-weight: var(--ts-typography-display-sm-font-weight);
+  line-height: var(--ts-typography-display-sm-line-height);
+  letter-spacing: var(--ts-typography-display-sm-letter-spacing);
+}
+.sp-headline {
+  margin: 0;
+  font-family: var(--ts-typography-headline-sm-font-family);
+  font-size: var(--ts-typography-headline-sm-font-size);
+  font-weight: var(--ts-typography-headline-sm-font-weight);
+  line-height: var(--ts-typography-headline-sm-line-height);
+  letter-spacing: var(--ts-typography-headline-sm-letter-spacing);
+}
+.sp-body { margin: 0; }
+.sp-secondary { color: var(--ts-color-text-secondary); }
+.sp-small { margin: 0; font-size: var(--ts-typography-body-sm-font-size); color: var(--ts-color-text-secondary); }
+.sp-link { color: var(--ts-color-link); }
+.sp-row { display: flex; gap: var(--ts-space-gap-sm); align-items: center; flex-wrap: wrap; }
+.sp-wrap { flex-wrap: wrap; }
+.sp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--ts-space-gap-lg); }
+
+.sp-btn {
+  height: var(--ts-component-button-height);
+  padding: 0 var(--ts-component-button-paddingX);
+  border-radius: var(--ts-component-button-radius);
+  font-family: var(--ts-component-button-typography-font-family);
+  font-size: var(--ts-component-button-typography-font-size);
+  font-weight: var(--ts-component-button-typography-font-weight);
+  transition: background var(--ts-component-button-transition);
+  cursor: pointer;
+  white-space: nowrap;
+  border: var(--ts-border-width-default) solid transparent;
+}
+.sp-btn--primary {
+  background: var(--ts-component-button-primary-background);
+  color: var(--ts-component-button-primary-text);
+  border-color: var(--ts-component-button-primary-border);
+}
+.sp-btn--primary:hover { background: var(--ts-component-button-primary-backgroundHover); }
+.sp-btn--secondary {
+  background: var(--ts-component-button-secondary-background);
+  color: var(--ts-component-button-secondary-text);
+  border-color: var(--ts-component-button-secondary-border);
+}
+.sp-btn--secondary:hover { background: var(--ts-component-button-secondary-backgroundHover); }
+.sp-btn:focus-visible, .sp-input:focus-visible, .sp-link:focus-visible {
+  outline: var(--ts-component-focusRing-width) solid var(--ts-component-focusRing-color);
+  outline-offset: var(--ts-component-focusRing-offset);
+}
+
+.sp-card {
+  background: var(--ts-component-card-background);
+  border: var(--ts-border-width-default) solid var(--ts-component-card-border);
+  box-shadow: var(--ts-component-card-shadow);
+  border-radius: var(--ts-component-card-radius);
+  padding: var(--ts-component-card-padding);
+  display: grid;
+  gap: var(--ts-space-gap-sm);
+  align-content: start;
+}
+.sp-label {
+  font-size: var(--ts-typography-label-md-font-size);
+  font-weight: var(--ts-typography-label-md-font-weight);
+}
+.sp-input {
+  height: var(--ts-component-input-height);
+  padding: 0 var(--ts-component-input-paddingX);
+  background: var(--ts-component-input-background);
+  color: var(--ts-component-input-text);
+  border: var(--ts-border-width-default) solid var(--ts-component-input-border);
+  border-radius: var(--ts-component-input-radius);
+  font: inherit;
+}
+.sp-input::placeholder { color: var(--ts-component-input-placeholder); }
+.sp-input:focus { border-color: var(--ts-component-input-borderFocus); }
+.sp-badge {
+  border-radius: var(--ts-component-badge-radius);
+  padding: 2px var(--ts-component-badge-paddingX);
+  font-size: var(--ts-component-badge-typography-font-size);
+  font-weight: var(--ts-component-badge-typography-font-weight);
+  text-transform: capitalize;
+}
+.sp-alert {
+  background: var(--ts-color-status-success-subtle);
+  color: var(--ts-color-status-success-onSubtle);
+  border-radius: var(--ts-radius-md);
+  padding: var(--ts-space-inset-md);
+  font-size: var(--ts-typography-body-sm-font-size);
+}
+.sp-list { list-style: none; margin: 0; padding: 0; }
+.sp-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--ts-space-inset-sm) 0;
+  border-top: var(--ts-border-width-default) solid var(--ts-color-border-subtle);
+}
