@@ -14,7 +14,9 @@ import {
   type ModeName,
   type Seed,
 } from "@tokenseed/core";
-import { useEffect, useMemo, useState } from "react";
+import { AuroraFixedScope, type AuroraScopeHandle } from "@aurora/react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { chromeFor } from "./aurora";
 import { ExportPanel } from "./ExportPanel";
 import { loadFonts } from "./fonts";
 import { History } from "./History";
@@ -71,6 +73,10 @@ function Editor({ ws }: { ws: Workspace }) {
   const failing = system.checks.filter((c) => !c.pass);
   const hasHc = system.modes.some((m) => m.endsWith("-hc"));
   const previewMode = (highContrast && hasHc ? `${mode}-hc` : mode) as ModeName;
+  const chrome = useMemo(() => chromeFor(system, mode), [system, mode]);
+  const scope = useRef<AuroraScopeHandle>(null);
+  // Live theming: write the changed CSS variables straight to the scope element, without re-rendering the chrome.
+  useLayoutEffect(() => scope.current?.update(chrome.variant, chrome.texture), [chrome]);
   const dirty = isDirty(repo);
   const branchName = currentBranch(repo);
 
@@ -91,6 +97,7 @@ function Editor({ ws }: { ws: Workspace }) {
     knobGroups.map((g) => [g, knobsFor(lvl).filter((k) => k.group === g && !(lvl === "grow" && k.required))] as const).filter(([, ks]) => ks.length);
 
   return (
+    <AuroraFixedScope ref={scope} className="aurora-root" variant={chrome.variant} texture={chrome.texture}>
     <div className="app" data-app-theme={mode}>
       <header className="topbar">
         <div className="brand">
@@ -230,6 +237,7 @@ function Editor({ ws }: { ws: Workspace }) {
       </div>
       )}
     </div>
+    </AuroraFixedScope>
   );
 }
 

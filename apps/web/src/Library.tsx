@@ -1,5 +1,7 @@
 import { exportBundle, generate, log, type Repo } from "@tokenseed/core";
+import { AuroraFixedScope } from "@aurora/react";
 import { useMemo, useRef } from "react";
+import { chromeFor } from "./aurora";
 import { ago, download, slug } from "./download";
 import { Specimen } from "./Specimen";
 import type { useWorkspace } from "./state";
@@ -8,7 +10,9 @@ type Lib = ReturnType<typeof useWorkspace>["library"];
 
 function Card({ repo, current, lib, onOpen, mode }: { repo: Repo; current: boolean; lib: Lib; onOpen: () => void; mode: "light" | "dark" }) {
   const system = useMemo(() => generate(repo.working), [repo.working]);
+  const { variant, texture } = useMemo(() => chromeFor(system, mode), [system, mode]);
   return (
+    <AuroraFixedScope className="lib-scope" variant={variant} texture={texture}>
     <article className={`lib-card${current ? " current" : ""}`}>
       {/* The Open button below is the keyboard path; the preview is a larger click target. */}
       <div className="lib-preview" onClick={onOpen}>
@@ -31,6 +35,7 @@ function Card({ repo, current, lib, onOpen, mode }: { repo: Repo; current: boole
         </button>
       </div>
     </article>
+    </AuroraFixedScope>
   );
 }
 
