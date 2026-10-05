@@ -166,3 +166,17 @@ describe("contrast report", () => {
     expect(lines).toHaveLength(ALL.length);
   });
 });
+
+describe("texture font families", () => {
+  it("aliases display and headline styles to brand and the rest to plain, even with one typeface", () => {
+    const bundle = exportAuroraBundle(SRGB_SYSTEM, { createdAt: CREATED }) as unknown as {
+      files: Record<string, { type: Record<string, { $value: { fontFamily?: unknown } }> }>;
+    };
+    const type = bundle.files["texture.tokens.json"]!.type;
+    expect(type.displayLarge!.$value.fontFamily).toBe("{type.family.brand}");
+    expect(type.headlineSmall!.$value.fontFamily).toBe("{type.family.brand}");
+    expect(type.titleLarge!.$value.fontFamily).toBe("{type.family.plain}");
+    expect(type.bodyMedium!.$value.fontFamily).toBe("{type.family.plain}");
+    expect(type.labelSmall!.$value.fontFamily).toBe("{type.family.plain}");
+  });
+});

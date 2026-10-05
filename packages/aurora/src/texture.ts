@@ -90,10 +90,13 @@ export function auroraTextureValues(system: GeneratedSystem): [AuroraToken<unkno
   add(F.brandFamily, () => new AuroraFontFamily(brand));
   add(F.plainFamily, () => new AuroraFontFamily(plain));
 
-  const family = (resolved: unknown) => {
+  // Display and headline styles prefer the brand family; the rest prefer plain, so a system that
+  // uses one typeface for both still aliases each style to the family Aurora means for it.
+  const family = (resolved: unknown, preferBrand: boolean) => {
     const list = names(resolved);
-    if (same(list, brand)) return new AuroraAlias(F.brandFamily);
+    if (preferBrand && same(list, brand)) return new AuroraAlias(F.brandFamily);
     if (same(list, plain)) return new AuroraAlias(F.plainFamily);
+    if (same(list, brand)) return new AuroraAlias(F.brandFamily);
     return new AuroraFontFamily(list);
   };
   for (const [token, role] of TYPE_STYLES) {
@@ -108,7 +111,7 @@ export function auroraTextureValues(system: GeneratedSystem): [AuroraToken<unkno
       // Fluid sizes are exported at their largest value (the token value is the max; the min
       // only lives in provenance), so Aurora gets the desktop size.
       return new AuroraTypography({
-        fontFamily: family(t.fontFamily),
+        fontFamily: family(t.fontFamily, /^(display|headline)/.test(role)),
         fontSize: dp(t.fontSize),
         fontWeight: new AuroraFontWeight(Math.min(1000, Math.max(1, Math.round(t.fontWeight)))),
         letterSpacing: dp(t.letterSpacing),
