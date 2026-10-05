@@ -146,6 +146,15 @@ Do not replace TokenSeed's generator with Aurora's unless Nico explicitly choose
 
 Steps 4 to 7 can start before the port lands: theme the chrome with plain CSS variables derived from the system, then swap in Aurora in step 5 or at the end.
 
+### Update 2026-10-05: Aurora integrated
+
+Steps 2, 3 and 8 are done, and the current chrome is on Aurora. Aurora's TypeScript port is on its `main`. TokenSeed vendors `@aurora/core` and `@aurora/react` at `vendor/aurora/`, and `packages/aurora` (`@tokenseed/aurora`) maps systems onto Aurora's foundation contracts and exports bundles.
+
+- **No app extension contract.** The chrome uses the foundation-only contract. Glass and tints are derived in CSS from the foundation variables, so the TokenSeed contract extension in §4 step 4 is not needed.
+- **Contrast diagnostic.** In dark mode, `onSurfaceVariant` (TokenSeed's `text.secondary`) reaches only about 4.3:1 on the bright and high container surfaces, below Aurora's 4.5. TokenSeed checks that text only against the page and default surfaces. Light mode passes.
+
+Steps 4 to 7 remain. See the README's Aurora section for details.
+
 ## 6. Decisions (answered by Nico, 2026-10-04 23:54Z)
 
 1. Aurora's style work is pushed; it is now **textures** on `main`.
