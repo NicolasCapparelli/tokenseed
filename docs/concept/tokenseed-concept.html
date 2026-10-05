@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TokenSeed Studio Concept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@400;600;800&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,400..900&family=Manrope:wght@400..800&family=Outfit:wght@300..900&family=Schibsted+Grotesk:wght@400..900&family=Nunito:wght@400..900&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: the generated system fills the stage; the app floats over it as glass panels.
+   The chrome borrows the seed's hue (--h) so the tool always wears the system being made. */
+:root {
+  --h: 264; --c: 0.17;
+  --bg: oklch(0.965 0.008 var(--h));
+  --bg-2: oklch(0.93 0.012 var(--h));
+  --glass: oklch(0.995 0.003 var(--h) / 0.78);
+  --glass-solid: oklch(0.995 0.003 var(--h));
+  --fg: oklch(0.2 0.03 var(--h));
+  --muted: oklch(0.48 0.025 var(--h));
+  --line: oklch(0.25 0.03 var(--h) / 0.1);
+  --accent: oklch(0.55 var(--c) var(--h));
+  --on-accent: oklch(0.99 0 0);
+  --accent-soft: oklch(0.55 var(--c) var(--h) / 0.12);
+  --shadow: 0 1px 2px oklch(0.2 0.03 var(--h) / 0.06), 0 12px 40px -8px oklch(0.2 0.05 var(--h) / 0.18);
+  --font-display: "Funnel Display", "Geist", system-ui, sans-serif;
+  --font-ui: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r-panel: 22px;
+  --r-ctl: 12px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: oklch(0.16 0.014 var(--h)); --bg-2: oklch(0.2 0.016 var(--h));
+    --glass: oklch(0.22 0.016 var(--h) / 0.78); --glass-solid: oklch(0.22 0.016 var(--h));
+    --fg: oklch(0.965 0.008 var(--h)); --muted: oklch(0.72 0.02 var(--h)); --line: oklch(0.95 0.02 var(--h) / 0.1);
+    --accent: oklch(0.74 calc(var(--c) * 0.9) var(--h)); --on-accent: oklch(0.17 0.03 var(--h));
+    --accent-soft: oklch(0.74 var(--c) var(--h) / 0.16);
+    --shadow: 0 1px 2px oklch(0 0 0 / 0.3), 0 16px 48px -8px oklch(0 0 0 / 0.55);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: oklch(0.16 0.014 var(--h)); --bg-2: oklch(0.2 0.016 var(--h));
+  --glass: oklch(0.22 0.016 var(--h) / 0.78); --glass-solid: oklch(0.22 0.016 var(--h));
+  --fg: oklch(0.965 0.008 var(--h)); --muted: oklch(0.72 0.02 var(--h)); --line: oklch(0.95 0.02 var(--h) / 0.1);
+  --accent: oklch(0.74 calc(var(--c) * 0.9) var(--h)); --on-accent: oklch(0.17 0.03 var(--h));
+  --accent-soft: oklch(0.74 var(--c) var(--h) / 0.16);
+  --shadow: 0 1px 2px oklch(0 0 0 / 0.3), 0 16px 48px -8px oklch(0 0 0 / 0.55);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font: 14px/1.45 var(--font-ui); -webkit-font-smoothing: antialiased; transition: background .4s; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hidden { display: none !important; }
+
+/* ── Shared controls ─────────────────────────────────────────────── */
+.btn { border: 1px solid var(--line); background: var(--glass-solid); border-radius: 999px; padding: 8px 16px; font-weight: 500; white-space: nowrap; transition: transform .15s, background .2s, border-color .2s; }
+.btn:hover { border-color: var(--muted); }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn.ghost { background: transparent; border-color: transparent; }
+.btn.ghost:hover { background: var(--accent-soft); }
+.btn.lg { padding: 14px 26px; font-size: 16px; font-weight: 600; }
+.icon { width: 18px; height: 18px; display: inline-block; vertical-align: -4px; }
+.eyebrow { font: 600 11px/1 var(--font-ui); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+.glass { background: var(--glass); backdrop-filter: blur(24px) saturate(1.4); -webkit-backdrop-filter: blur(24px) saturate(1.4); border: 1px solid var(--line); border-radius: var(--r-panel); box-shadow: var(--shadow); }
+.seg { display: inline-flex; padding: 4px; gap: 2px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); }
+.seg button { border: 0; background: transparent; padding: 7px 16px; border-radius: 999px; font-weight: 500; color: var(--muted); transition: background .2s, color .2s; }
+.seg button[aria-pressed="true"] { background: var(--glass-solid); color: var(--fg); box-shadow: 0 1px 3px oklch(0 0 0 / .12); }
+.seg.sm button { padding: 5px 11px; font-size: 13px; }
+
+/* ── Start screen ───────────────────────────────────────────────── */
+#start { min-height: 100%; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+.start-copy { padding: clamp(24px, 5vw, 72px); display: flex; flex-direction: column; gap: 26px; justify-content: center; }
+.logo { display: inline-flex; align-items: center; gap: 10px; font: 800 18px/1 var(--font-display); letter-spacing: -.01em; }
+.logo-mark { width: 26px; height: 26px; border-radius: 9px; background: conic-gradient(from 200deg, oklch(.75 .16 var(--h)), oklch(.55 .2 var(--h)), oklch(.82 .12 calc(var(--h) + 40)), oklch(.75 .16 var(--h))); box-shadow: inset 0 0 0 1px oklch(1 0 0 / .25); }
+.start-title { font: 800 clamp(40px, 5vw, 76px)/.95 var(--font-display); letter-spacing: -.035em; margin: 0; text-wrap: balance; }
+.start-title em { font-style: normal; color: var(--accent); transition: color .4s; }
+.start-lede { font-size: 18px; color: var(--muted); max-width: 46ch; margin: -12px 0 0; }
+.step { display: grid; gap: 12px; }
+.step-label { font: 600 15px/1.2 var(--font-ui); }
+.orbs { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.orb { width: 52px; height: 52px; border-radius: 50%; border: 0; position: relative; transition: transform .2s; box-shadow: inset 0 -6px 14px oklch(0 0 0 / .18), inset 0 4px 10px oklch(1 0 0 / .35); }
+.orb:hover { transform: translateY(-2px) scale(1.04); }
+.orb[aria-pressed="true"]::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--fg); }
+.orb-custom { background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red); overflow: hidden; }
+.orb-custom input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.kinds { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.kind { text-align: left; border: 1px solid var(--line); background: var(--glass-solid); border-radius: 16px; padding: 14px; display: grid; gap: 4px; transition: border-color .2s, transform .15s; }
+.kind:hover { transform: translateY(-1px); border-color: var(--muted); }
+.kind[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.kind b { font-weight: 600; }
+.kind small { color: var(--muted); font-size: 12px; }
+.vibe { display: flex; gap: 10px; align-items: center; border: 1px solid var(--line); border-radius: 16px; padding: 6px 6px 6px 16px; background: var(--glass-solid); }
+.vibe input { flex: 1; min-width: 0; border: 0; background: transparent; font-size: 15px; padding: 8px 0; outline: none; }
+.vibe .tag { font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 3px 8px; white-space: nowrap; }
+.start-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.start-visual { position: relative; overflow: hidden; background: var(--bg-2); display: grid; place-items: center; padding: 40px; min-height: 420px; }
+.ramp-wall { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(11, 1fr); }
+.ramp-wall span { transition: background .6s cubic-bezier(.2,.7,.2,1); }
+.start-visual .preview-float { position: relative; width: min(440px, 100%); transform: rotate(-3deg); border-radius: 28px; overflow: hidden; box-shadow: 0 40px 80px -20px oklch(0 0 0 / .45); transition: transform .5s; }
+.start-visual:hover .preview-float { transform: rotate(-1deg) translateY(-4px); }
+
+/* ── Studio ─────────────────────────────────────────────────────── */
+#studio { position: relative; height: 100%; min-height: 640px; display: grid; grid-template-rows: auto minmax(0, 1fr); }
+.topbar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; position: relative; z-index: 5; }
+.sys-switch { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); background: var(--glass); backdrop-filter: blur(20px); border-radius: 999px; padding: 5px 14px 5px 6px; min-width: 0; }
+.sys-dot { width: 28px; height: 28px; border-radius: 50%; flex: none; }
+.sys-switch strong { font: 600 14px/1.1 var(--font-ui); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sys-switch small { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.unsaved { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: oklch(.75 .16 60); margin-right: 4px; }
+.topbar .spacer { flex: 1; }
+.depth { position: absolute; left: 50%; transform: translateX(-50%); }
+.depth button { display: grid; text-align: center; line-height: 1.1; }
+.depth small { font-size: 10px; opacity: .7; font-weight: 400; }
+
+.stage { position: relative; min-height: 0; display: grid; grid-template-columns: 340px minmax(0, 1fr) auto; gap: 16px; padding: 0 16px 16px; }
+
+/* Left deck */
+.deck { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.deck-scroll { overflow-y: auto; padding: 18px; display: grid; gap: 20px; align-content: start; }
+.deck h2 { font: 800 22px/1.1 var(--font-display); letter-spacing: -.02em; margin: 0; }
+.deck-intro { color: var(--muted); margin: -12px 0 0; }
+.trait { display: grid; gap: 8px; }
+.trait-ends { display: flex; justify-content: space-between; font-weight: 600; font-size: 13px; }
+.trait-ends span:last-child { text-align: right; }
+.trait-ends .open { color: var(--muted); font-weight: 400; font-size: 11px; align-self: center; }
+input[type="range"].big { -webkit-appearance: none; appearance: none; width: 100%; height: 34px; background: transparent; }
+input[type="range"].big::-webkit-slider-runnable-track { height: 10px; border-radius: 999px; background: linear-gradient(90deg, var(--bg-2), var(--accent-soft), var(--accent)); }
+input[type="range"].big::-moz-range-track { height: 10px; border-radius: 999px; background: linear-gradient(90deg, var(--bg-2), var(--accent-soft), var(--accent)); }
+input[type="range"].big::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; margin-top: -8px; border-radius: 50%; background: var(--glass-solid); border: 3px solid var(--accent); box-shadow: 0 3px 10px oklch(0 0 0 / .2); transition: transform .15s; }
+input[type="range"].big::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--glass-solid); border: 3px solid var(--accent); }
+input[type="range"].big:active::-webkit-slider-thumb { transform: scale(1.15); }
+.trait.untouched input[type="range"].big::-webkit-slider-thumb { border-style: dashed; border-color: var(--muted); }
+.more { border: 0; background: none; color: var(--accent); font-weight: 600; padding: 0; text-align: left; }
+.style-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.style-chip { border: 1px solid var(--line); background: var(--glass-solid); border-radius: 14px; padding: 6px 12px 6px 6px; display: flex; gap: 8px; align-items: center; font-weight: 500; }
+.style-chip i { width: 26px; height: 26px; border-radius: 8px; display: block; }
+.style-chip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+
+/* Area list (Grow / Craft) */
+.areas { display: grid; gap: 8px; }
+.area { border: 1px solid var(--line); background: var(--glass-solid); border-radius: 16px; overflow: hidden; transition: border-color .2s; }
+.area[open] { border-color: var(--accent); }
+.area summary { list-style: none; display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; cursor: pointer; }
+.area summary::-webkit-details-marker { display: none; }
+.area-ico { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+.area-title { font-weight: 600; }
+.area-sum { color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.area-count { font-size: 11px; color: var(--muted); }
+.area-body { padding: 4px 14px 16px; display: grid; gap: 14px; }
+.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.tile { border: 1px solid var(--line); background: var(--bg); border-radius: 12px; padding: 8px 4px 6px; display: grid; gap: 6px; justify-items: center; font-size: 11px; color: var(--muted); }
+.tile[aria-pressed="true"] { border-color: var(--accent); color: var(--fg); box-shadow: 0 0 0 2px var(--accent-soft); }
+.tile .shape { width: 34px; height: 24px; border: 2px solid currentColor; }
+.tile .aa { font-size: 22px; line-height: 1; color: var(--fg); }
+.ctl-label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 500; }
+.ctl-label output { color: var(--muted); font-family: var(--font-mono); font-size: 12px; }
+input[type="range"].thin { width: 100%; accent-color: var(--accent); }
+.fine { border-top: 1px dashed var(--line); padding-top: 12px; display: grid; gap: 2px; }
+.fine-row { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; font-size: 13px; }
+.fine-row span:last-child { color: var(--muted); font-family: var(--font-mono); font-size: 12px; text-align: right; }
+.prov { font-size: 10px; border-radius: 999px; padding: 1px 6px; margin-left: 6px; background: var(--bg-2); color: var(--muted); font-family: var(--font-ui); }
+
+/* Canvas */
+.canvas-wrap { position: relative; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 10px; }
+.canvas-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.checks { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 999px; background: oklch(.7 .14 155 / .14); color: oklch(.45 .12 155); }
+:root[data-theme="dark"] .checks { color: oklch(.8 .12 155); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .checks { color: oklch(.8 .12 155); } }
+.canvas { position: relative; border-radius: 26px; overflow: hidden; min-height: 0; border: 1px solid var(--line); box-shadow: var(--shadow); }
+.canvas > .layer { position: absolute; inset: 0; overflow: auto; }
+.canvas > .layer.before { clip-path: inset(0 calc(100% - var(--split, 50%)) 0 0); z-index: 2; }
+.split-handle { position: absolute; top: 0; bottom: 0; left: var(--split, 50%); width: 2px; background: var(--fg); z-index: 3; pointer-events: none; }
+.split-handle::after { content: "⇆"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--fg); color: var(--bg); font-size: 18px; }
+.split-range { position: absolute; inset: 0; z-index: 4; width: 100%; opacity: 0; cursor: ew-resize; height: 100%; margin: 0; }
+.split-tags { position: absolute; top: 14px; left: 14px; right: 14px; display: flex; justify-content: space-between; z-index: 5; pointer-events: none; }
+.split-tags span { background: var(--fg); color: var(--bg); border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 600; }
+
+/* Pick strip */
+.picks { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 6; display: flex; gap: 10px; align-items: center; padding: 10px 10px 10px 18px; max-width: calc(100% - 32px); }
+.picks .eyebrow { white-space: nowrap; }
+.pick { width: 112px; height: 72px; border-radius: 14px; overflow: hidden; border: 2px solid transparent; padding: 0; position: relative; flex: none; transition: transform .2s, border-color .2s; }
+.pick:hover { transform: translateY(-3px); border-color: var(--accent); }
+.pick .mini { position: absolute; inset: 0; }
+.picks-collapse { border: 0; background: none; color: var(--muted); padding: 4px 8px; }
+
+/* Right drawers */
+.drawer { width: 340px; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.drawer-head { display: flex; align-items: center; gap: 8px; padding: 16px 18px 6px; }
+.drawer-head h2 { font: 800 22px/1.1 var(--font-display); letter-spacing: -.02em; margin: 0; flex: 1; }
+.drawer-body { overflow-y: auto; overflow-x: hidden; padding: 8px 18px 18px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; align-content: start; }
+.drawer-body > * { min-width: 0; }
+.save-box { display: grid; gap: 10px; padding: 14px; border-radius: 16px; background: var(--bg-2); }
+.save-box input { border: 1px solid var(--line); background: var(--glass-solid); border-radius: 12px; padding: 10px 12px; }
+.change { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+.change span:last-child { color: var(--muted); }
+.timeline { display: grid; gap: 4px; }
+.version { display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 12px; padding: 8px; border-radius: 14px; border: 1px solid transparent; text-align: left; background: none; }
+.version:hover { background: var(--bg-2); }
+.version.current { border-color: var(--line); background: var(--glass-solid); }
+.vthumb { width: 54px; height: 54px; border-radius: 12px; overflow: hidden; display: grid; grid-template-rows: 1.4fr 1fr; }
+.vthumb div { display: flex; }
+.vthumb div span { flex: 1; }
+.vmeta { display: grid; gap: 3px; align-content: center; min-width: 0; }
+.vmeta b { font-weight: 600; }
+.vmeta small { color: var(--muted); font-size: 12px; }
+.refs { display: flex; gap: 4px; flex-wrap: wrap; }
+.ref { font-size: 10px; font-weight: 600; border-radius: 999px; padding: 2px 7px; background: var(--accent-soft); color: var(--accent); }
+.ref.tag { background: oklch(.8 .12 85 / .25); color: oklch(.5 .1 70); }
+.export-card { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; padding: 12px; border-radius: 16px; border: 1px solid var(--line); background: var(--glass-solid); text-align: left; }
+.export-card[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.export-card i { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font: 600 12px var(--font-mono); font-style: normal; }
+.export-card small { color: var(--muted); display: block; }
+pre.code { margin: 0; padding: 14px; border-radius: 16px; background: oklch(.18 .02 var(--h)); color: oklch(.92 .02 var(--h)); font: 12px/1.55 var(--font-mono); overflow: auto; max-height: 260px; white-space: pre; }
+pre.code .k { color: oklch(.78 .12 var(--h)); }
+pre.code .v { color: oklch(.85 .1 150); }
+
+/* Library */
+#library { min-height: 100%; padding: 20px clamp(16px, 4vw, 48px) 48px; display: grid; gap: 28px; align-content: start; }
+.lib-head { display: flex; align-items: end; gap: 16px; flex-wrap: wrap; }
+.lib-head h1 { font: 800 clamp(40px, 5vw, 64px)/1 var(--font-display); letter-spacing: -.03em; margin: 0; }
+.lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+.poster { border-radius: 24px; overflow: hidden; border: 1px solid var(--line); background: var(--glass-solid); display: grid; text-align: left; padding: 0; transition: transform .25s, box-shadow .25s; }
+.poster:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.poster-art { height: 220px; position: relative; overflow: hidden; }
+.poster-info { padding: 14px 16px 16px; display: grid; gap: 4px; }
+.poster-info b { font-size: 16px; }
+.poster-info small { color: var(--muted); }
+.poster.new { place-items: center; min-height: 300px; border-style: dashed; background: transparent; color: var(--muted); font-weight: 600; font-size: 16px; }
+
+.concept-note { display: inline-block; font-size: 12px; color: var(--muted); background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; }
+.screen-nav { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* ── Generated system specimens (styled only by --s-* variables) ── */
+.sys { background: var(--s-bg); color: var(--s-text); font-family: var(--s-body); min-height: 100%; transition: background .4s, color .4s; }
+.sys * { transition: background-color .4s, color .4s, border-radius .3s, box-shadow .3s; }
+.sp { padding: var(--s-pad); display: grid; gap: var(--s-gap); max-width: 1100px; margin: 0 auto; padding-bottom: 120px; }
+.sp-nav { display: flex; align-items: center; gap: 22px; font-size: 14px; color: var(--s-text-2); }
+.sp-nav b { font-family: var(--s-display); font-weight: var(--s-weight); color: var(--s-text); font-size: 18px; letter-spacing: var(--s-track); margin-right: auto; }
+.sp-nav .on { color: var(--s-text); font-weight: 600; }
+.sp-hero { background: var(--s-hero); color: var(--s-on-hero); border-radius: var(--s-r-lg); padding: calc(var(--s-pad) * 1.4); display: grid; gap: 14px; box-shadow: var(--s-shadow); }
+.sp-over { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; opacity: .8; margin: 0; }
+.sp-display { font-family: var(--s-display); font-weight: var(--s-weight); font-size: var(--s-display-size); line-height: .95; letter-spacing: var(--s-track); margin: 0; font-variant-numeric: tabular-nums; }
+.sp-display small { font-size: .45em; opacity: .7; }
+.sp-hero p { margin: 0; max-width: 46ch; opacity: .9; }
+.sp-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.sp-btn { font: 600 14px/1 var(--s-body); height: var(--s-ctl); padding: 0 calc(var(--s-ctl) * .45); border-radius: var(--s-r-btn); border: 1.5px solid var(--s-border); background: var(--s-surface); color: var(--s-text); cursor: pointer; }
+.sp-btn--primary { background: var(--s-primary); color: var(--s-on-primary); border-color: transparent; }
+.sp-hero .sp-btn:not(.sp-btn--primary) { background: transparent; color: inherit; border-color: currentColor; }
+.sp-hero.on-brand .sp-btn--primary { background: var(--s-on-primary); color: var(--s-primary); }
+.sp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--s-gap); }
+.sp-card { background: var(--s-surface); border: 1px solid var(--s-border); border-radius: var(--s-r-lg); padding: var(--s-pad); display: grid; gap: 12px; align-content: start; box-shadow: var(--s-shadow); }
+.sp-h { font-family: var(--s-display); font-weight: var(--s-weight); font-size: 20px; letter-spacing: var(--s-track); margin: 0; }
+.sp-muted { color: var(--s-text-2); font-size: 13px; margin: 0; }
+.sp-list { list-style: none; margin: 0; padding: 0; }
+.sp-list li { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-top: 1px solid var(--s-border); font-size: 14px; gap: 10px; }
+.sp-list li span:last-child { font-variant-numeric: tabular-nums; font-weight: 600; }
+.sp-av { width: 30px; height: 30px; border-radius: var(--s-r-av); background: var(--s-subtle); color: var(--s-on-subtle); display: inline-grid; place-items: center; font-size: 12px; font-weight: 700; margin-right: 10px; vertical-align: middle; }
+.sp-bar { height: 10px; border-radius: 999px; background: var(--s-subtle); overflow: hidden; }
+.sp-bar span { display: block; height: 100%; width: 68%; background: var(--s-primary); border-radius: inherit; }
+.sp-chip { font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: var(--s-r-chip); background: var(--s-subtle); color: var(--s-on-subtle); }
+.sp-input { height: var(--s-ctl); border-radius: var(--s-r); border: 1.5px solid var(--s-border); background: var(--s-bg); color: var(--s-text); padding: 0 12px; font: 14px var(--s-body); width: 100%; }
+.sp-label { font-size: 13px; font-weight: 600; }
+.sp-toggle { width: 42px; height: 24px; border-radius: 999px; background: var(--s-primary); position: relative; flex: none; }
+.sp-toggle::after { content: ""; position: absolute; right: 3px; top: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--s-on-primary); }
+.sp-toast { justify-self: start; display: flex; gap: 14px; align-items: center; background: var(--s-inverse); color: var(--s-on-inverse); border-radius: var(--s-r); padding: 12px 16px; font-size: 14px; box-shadow: var(--s-shadow); }
+.sp-toast b { color: var(--s-primary-inv); }
+.sp-statuses { display: flex; gap: 8px; flex-wrap: wrap; }
+.sp-status { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: var(--s-r-chip); }
+/* Landing */
+.sp-land { text-align: center; display: grid; gap: 22px; justify-items: center; padding: calc(var(--s-pad) * 2.4) var(--s-pad) var(--s-pad); }
+.sp-land h1 { font-family: var(--s-display); font-weight: var(--s-weight); font-size: calc(var(--s-display-size) * 1.15); line-height: .95; letter-spacing: var(--s-track); margin: 0; max-width: 14ch; text-wrap: balance; }
+.sp-land h1 span { color: var(--s-primary); }
+.sp-land p { color: var(--s-text-2); font-size: 18px; max-width: 44ch; margin: 0; }
+.sp-feats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--s-gap); }
+.sp-feat-ico { width: 44px; height: 44px; border-radius: var(--s-r); background: var(--s-subtle); color: var(--s-on-subtle); display: grid; place-items: center; font-weight: 800; }
+/* Mobile */
+.sp-phone-wrap { display: flex; gap: 40px; justify-content: center; padding: 40px 16px 120px; flex-wrap: wrap; }
+.sp-phone { width: 300px; height: 620px; border-radius: 44px; background: var(--s-bg); border: 10px solid oklch(.15 0 0); overflow: hidden; display: grid; grid-template-rows: auto 1fr auto; box-shadow: 0 30px 60px -20px oklch(0 0 0 / .4); }
+.sp-phone-top { padding: 14px 20px 6px; display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; }
+.sp-phone-body { padding: 10px 16px; display: grid; gap: 14px; align-content: start; overflow: hidden; }
+.sp-wallet { background: var(--s-hero); color: var(--s-on-hero); border-radius: var(--s-r-lg); padding: 22px; display: grid; gap: 6px; min-height: 230px; align-content: space-between; box-shadow: var(--s-shadow); }
+.sp-wallet .big { font-family: var(--s-display); font-weight: var(--s-weight); font-size: 46px; line-height: .9; letter-spacing: var(--s-track); }
+.sp-tabbar { display: flex; justify-content: space-around; padding: 10px 0 18px; border-top: 1px solid var(--s-border); font-size: 11px; color: var(--s-text-2); }
+.sp-tabbar .on { color: var(--s-primary); font-weight: 700; }
+/* Tokens */
+.sp-tok h2 { font-family: var(--s-display); font-weight: var(--s-weight); letter-spacing: var(--s-track); margin: 0 0 10px; font-size: 22px; }
+.sp-ramp { display: grid; grid-template-columns: repeat(11, 1fr); border-radius: var(--s-r); overflow: hidden; }
+.sp-ramp div { height: 64px; display: flex; align-items: end; padding: 6px; font: 10px var(--font-mono); }
+.sp-scale { display: grid; gap: 8px; }
+.sp-scale div { display: flex; align-items: baseline; gap: 16px; font-family: var(--s-display); font-weight: var(--s-weight); letter-spacing: var(--s-track); white-space: nowrap; overflow: hidden; }
+.sp-scale code { font: 11px var(--font-mono); color: var(--s-text-2); width: 92px; flex: none; }
+.sp-radii, .sp-shadows { display: flex; gap: 14px; flex-wrap: wrap; }
+.sp-radii div, .sp-shadows div { width: 84px; height: 64px; background: var(--s-surface); border: 1.5px solid var(--s-border); display: grid; place-items: end start; padding: 6px; font: 10px var(--font-mono); color: var(--s-text-2); }
+.sp-space { display: grid; gap: 6px; }
+.sp-space div { display: flex; align-items: center; gap: 10px; font: 11px var(--font-mono); color: var(--s-text-2); }
+.sp-space i { display: block; height: 12px; background: var(--s-primary); border-radius: 3px; }
+
+@media (max-width: 1100px) {
+  .stage { grid-template-columns: 300px minmax(0, 1fr); }
+  .drawer { position: absolute; right: 16px; top: 0; bottom: 16px; z-index: 8; }
+  .depth { position: static; transform: none; }
+}
+@media (max-width: 820px) {
+  #start { grid-template-columns: minmax(0, 1fr); }
+  .start-visual { min-height: 360px; }
+  #studio { height: auto; }
+  .topbar { flex-wrap: wrap; }
+  .depth { order: 5; width: 100%; display: flex; justify-content: center; }
+  .stage { grid-template-columns: minmax(0, 1fr); }
+  .canvas-wrap { min-height: 640px; order: -1; }
+  .deck { max-height: none; }
+  .drawer { position: fixed; inset: auto 8px 8px; width: auto; max-height: 80vh; }
+  .picks { gap: 6px; padding: 8px; }
+  .picks .eyebrow, .picks-collapse { display: none; }
+  .pick { width: 64px; height: 48px; }
+  .top-label { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { *, .sys * { transition: none !important; } }
+</style>
+
+<!-- ═══════════════ START ═══════════════ -->
+<section id="start" aria-label="Start a new system">
+  <div class="start-copy">
+    <span class="logo"><span class="logo-mark"></span>TokenSeed</span>
+    <h1 class="start-title">Grow a whole design system from <em>one color.</em></h1>
+    <p class="start-lede">Pick a color and tell us what you're making. You'll get a complete, accessible system in seconds, and you can shape every detail later.</p>
+    <span class="concept-note" style="position:static;align-self:start">Concept prototype · everything is clickable · values are illustrative</span>
+    <div class="step">
+      <span class="step-label">Your color</span>
+      <div class="orbs" id="orbs"></div>
+    </div>
+    <div class="step">
+      <span class="step-label">What are you making?</span>
+      <div class="kinds" id="kinds"></div>
+    </div>
+    <div class="step">
+      <span class="step-label">Describe the vibe <span class="eyebrow" style="margin-left:6px">optional</span></span>
+      <label class="vibe" for="vibe">
+        <input id="vibe" placeholder="Calm Nordic fintech, crisp and confident">
+        <span class="tag">Uses AI · ask first</span>
+      </label>
+    </div>
+    <div class="start-actions">
+      <button class="btn primary lg" id="go">Grow my system →</button>
+      <button class="btn ghost" data-goto="library">Open a saved system</button>
+    </div>
+  </div>
+  <div class="start-visual" aria-hidden="true">
+    <div class="ramp-wall" id="rampWall"></div>
+    <div class="preview-float" id="startPreview"></div>
+  </div>
+</section>
+
+<!-- ═══════════════ STUDIO ═══════════════ -->
+<section id="studio" class="hidden" aria-label="Studio">
+  <header class="topbar">
+    <button class="logo btn ghost" data-goto="start" title="Start over" style="padding:6px 8px"><span class="logo-mark"></span><span class="top-label">TokenSeed</span></button>
+    <button class="sys-switch" data-goto="library" title="All your systems">
+      <span class="sys-dot" id="sysDot"></span>
+      <span style="min-width:0;text-align:left"><strong id="sysName">Northwind</strong><small><span class="unsaved" id="unsavedDot"></span><span id="sysState">main · 2 unsaved changes</span></small></span>
+    </button>
+    <div class="seg depth" role="group" aria-label="How much control">
+      <button data-depth="sprout" aria-pressed="true">Sprout<small>just the vibe</small></button>
+      <button data-depth="grow" aria-pressed="false">Grow<small>guided</small></button>
+      <button data-depth="craft" aria-pressed="false">Craft<small>every knob</small></button>
+    </div>
+    <span class="spacer"></span>
+    <button class="btn ghost" id="themeBtn" title="Switch app theme">◐</button>
+    <button class="btn" data-drawer="versions">Versions</button>
+    <button class="btn primary" data-drawer="export">Export</button>
+  </header>
+
+  <div class="stage">
+    <aside class="deck glass" aria-label="Controls"><div class="deck-scroll" id="deck"></div></aside>
+
+    <div class="canvas-wrap">
+      <div class="canvas-bar">
+        <div class="seg sm" role="group" aria-label="Preview">
+          <button data-tpl="app" aria-pressed="true">App</button>
+          <button data-tpl="landing" aria-pressed="false">Landing</button>
+          <button data-tpl="mobile" aria-pressed="false">Mobile</button>
+          <button data-tpl="tokens" aria-pressed="false">Tokens</button>
+        </div>
+        <div class="seg sm" role="group" aria-label="Mode">
+          <button data-mode="light" aria-pressed="true">Light</button>
+          <button data-mode="dark" aria-pressed="false">Dark</button>
+        </div>
+        <span class="spacer" style="flex:1"></span>
+        <span class="checks">✓ All 44 contrast checks pass</span>
+      </div>
+      <div class="canvas" id="canvas">
+        <div class="layer after" id="layerAfter"></div>
+        <div class="layer before hidden" id="layerBefore"></div>
+        <div class="split-handle hidden" id="splitHandle"></div>
+        <input type="range" class="split-range hidden" id="splitRange" min="0" max="100" value="50" aria-label="Compare split">
+        <div class="split-tags hidden" id="splitTags"><span id="splitBeforeLabel">Before</span><span>Now</span></div>
+        <div class="picks glass" id="picks">
+          <span class="eyebrow">Pick one you like</span>
+          <div id="pickRow" style="display:flex;gap:10px"></div>
+          <button class="btn" id="shuffle" title="Show four new options">⟳</button>
+          <button class="picks-collapse" id="pickHide" title="Hide">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="drawer glass hidden" id="drawer" aria-label="Panel"></aside>
+  </div>
+</section>
+
+<!-- ═══════════════ LIBRARY ═══════════════ -->
+<section id="library" class="hidden" aria-label="Your systems">
+  <header class="topbar" style="padding:0">
+    <button class="logo btn ghost" data-goto="start" style="padding:6px 8px"><span class="logo-mark"></span>TokenSeed</button>
+    <span class="spacer"></span>
+    <button class="btn">Import .tokenseed</button>
+    <button class="btn primary" data-goto="start">New system</button>
+  </header>
+  <div class="lib-head"><h1>Your systems</h1><span style="color:var(--muted)">Saved in this browser · export one to share it or move it</span></div>
+  <div class="lib-grid" id="libGrid"></div>
+</section>
+
+
+<script>
+/* ── Tiny token engine for the concept: hue + traits → CSS variables ── */
+const FONTS = [
+  { name: "Grotesk", d: "'Schibsted Grotesk', sans-serif", b: "'Schibsted Grotesk', sans-serif" },
+  { name: "Geometric", d: "'Outfit', sans-serif", b: "'Outfit', sans-serif" },
+  { name: "Editorial", d: "'Fraunces', serif", b: "'Manrope', sans-serif" },
+  { name: "Rounded", d: "'Nunito', sans-serif", b: "'Nunito', sans-serif" },
+  { name: "Precise", d: "'IBM Plex Sans', sans-serif", b: "'IBM Plex Sans', sans-serif" },
+];
+const COLORS = [
+  { name: "Cobalt", h: 264, c: .19 }, { name: "Tangerine", h: 48, c: .19 }, { name: "Moss", h: 150, c: .15 },
+  { name: "Fuchsia", h: 340, c: .2 }, { name: "Lagoon", h: 205, c: .13 }, { name: "Ink", h: 270, c: .05 },
+];
+const KINDS = [
+  ["saas", "Dashboard", "Data-dense SaaS"], ["marketing", "Website", "Big type, lots of room"], ["mobile", "Mobile app", "Touch-first"],
+  ["commerce", "Store", "Clear calls to action"], ["editorial", "Publication", "Made for reading"], ["devtool", "Dev tool", "Dense and precise"],
+];
+const TRAITS = [
+  ["bold", "Calm", "Bold"], ["sharp", "Rounded", "Sharp"], ["dense", "Airy", "Dense"], ["warm", "Cool", "Warm"],
+  ["playful", "Serious", "Playful"], ["depth", "Flat", "Dimensional"], ["loud", "Quiet", "Loud"], ["heavy", "Light", "Heavy"],
+];
+const STYLES = [
+  { id: "boldhero", name: "BoldHero", t: { bold: .95, sharp: .2, loud: .9 }, font: 1 },
+  { id: "editorial", name: "Editorial", t: { bold: .35, sharp: .8, warm: .75, depth: .1 }, font: 2 },
+  { id: "brutalist", name: "Brutalist", t: { sharp: 1, depth: 0, heavy: 1, loud: .8 }, font: 0 },
+  { id: "soft", name: "Soft", t: { sharp: .05, playful: .85, depth: .6, bold: .3 }, font: 3 },
+  { id: "precise", name: "Precise", t: { dense: .75, sharp: .7, depth: .3, playful: .1 }, font: 4 },
+];
+const ok = (l, c, h, a) => `oklch(${l.toFixed(3)} ${Math.max(0, c).toFixed(3)} ${h.toFixed(1)}${a !== undefined ? ` / ${a}` : ""})`;
+const lerp = (a, b, t) => a + (b - a) * t;
+
+function tokens(seed, mode) {
+  const t = { bold: .5, sharp: .5, dense: .5, warm: .5, playful: .5, depth: .5, loud: .5, heavy: .5, ...seed.traits };
+  const { h } = seed;
+  const C = seed.c * lerp(.7, 1.25, t.bold);
+  const nh = t.warm > .62 ? 70 : t.warm < .38 ? 250 : h;
+  const nc = lerp(.004, .02, Math.abs(t.warm - .5) * 2 + .2);
+  const dark = mode === "dark";
+  const brandHero = t.loud > .6 || t.bold > .82;
+  const v = {};
+  if (!dark) {
+    Object.assign(v, {
+      bg: ok(.985, nc * .6, nh), surface: t.depth > .45 ? ok(1, 0, nh) : ok(.97, nc, nh), text: ok(.21, .02, nh), "text-2": ok(.46, .02, nh),
+      border: ok(.9, nc * 1.2, nh, t.heavy > .8 ? 1 : undefined), primary: ok(.53, C, h), "on-primary": ok(.99, 0, h),
+      subtle: ok(.94, C * .3, h), "on-subtle": ok(.36, C * .85, h), inverse: ok(.22, .02, nh), "on-inverse": ok(.96, .01, nh), "primary-inv": ok(.8, C * .8, h),
+    });
+  } else {
+    Object.assign(v, {
+      bg: ok(.16, nc * 1.4, nh), surface: ok(.205, nc * 1.5, nh), text: ok(.96, .01, nh), "text-2": ok(.74, .02, nh),
+      border: ok(.32, nc * 1.5, nh), primary: ok(.74, C * .85, h), "on-primary": ok(.17, .04, h),
+      subtle: ok(.3, C * .45, h), "on-subtle": ok(.9, C * .45, h), inverse: ok(.94, .01, nh), "on-inverse": ok(.2, .02, nh), "primary-inv": ok(.5, C, h),
+    });
+  }
+  v.hero = brandHero ? v.primary : v.subtle;
+  v["on-hero"] = brandHero ? v["on-primary"] : v["on-subtle"];
+  const r = Math.round(lerp(18, 0, t.sharp));
+  Object.assign(v, {
+    r: r + "px", "r-lg": Math.round(r * 1.6) + "px", "r-btn": t.sharp < .15 ? "999px" : r + "px", "r-chip": t.sharp < .6 ? "999px" : Math.round(r / 2) + "px",
+    "r-av": t.sharp > .8 ? "4px" : "50%",
+    pad: Math.round(lerp(30, 16, t.dense)) + "px", gap: Math.round(lerp(22, 10, t.dense)) + "px", ctl: Math.round(lerp(46, 34, t.dense)) + "px",
+    display: FONTS[seed.font].d, body: FONTS[seed.font].b,
+    weight: Math.round(lerp(480, 860, Math.max(t.bold, t.heavy)) / 10) * 10, "display-size": Math.round(lerp(42, 84, t.bold)) + "px",
+    track: lerp(-.005, -.04, t.bold).toFixed(3) + "em",
+    shadow: t.depth < .12 ? "none" : `0 ${Math.round(1 + 10 * t.depth)}px ${Math.round(4 + 34 * t.depth)}px -${Math.round(4 * t.depth)}px ${ok(.2, .05, h, (.06 + .14 * t.depth).toFixed(2))}`,
+  });
+  return v;
+}
+const styleOf = (seed, mode) => Object.entries(tokens(seed, mode)).map(([k, v]) => `--s-${k}:${v}`).join(";");
+const ramp = (seed) => Array.from({ length: 11 }, (_, i) => ok(lerp(.97, .27, i / 10), seed.c * (1 - Math.abs(i - 5.5) / 9), seed.h + (i - 5) * 1.5));
+
+/* ── Specimens ── */
+const SPEC = {
+  app: (s) => `<div class="sp">
+    <nav class="sp-nav"><b>${s.name}</b><span class="on">Overview</span><span>Payments</span><span>Cards</span><button class="sp-btn">Ana R.</button></nav>
+    <section class="sp-hero ${tokens(s, "light").hero === tokens(s, "light").primary ? "on-brand" : ""}"><p class="sp-over">Available balance</p>
+      <h1 class="sp-display">$12,480<small>.20</small></h1>
+      <p>Up 8.2% this month. Your next payout lands on Friday.</p>
+      <div class="sp-row"><button class="sp-btn sp-btn--primary">Send money</button><button class="sp-btn">Request</button></div></section>
+    <div class="sp-grid">
+      <section class="sp-card"><h2 class="sp-h">Recent activity</h2><ul class="sp-list">
+        <li><span><i class="sp-av">KB</i>Kiosk Bakery</span><span>−$8.40</span></li>
+        <li><span><i class="sp-av">PL</i>Payroll</span><span>+$3,200.00</span></li>
+        <li><span><i class="sp-av">ST</i>Streamly</span><span>−$12.99</span></li></ul></section>
+      <section class="sp-card"><h2 class="sp-h">Trip to Lisbon</h2><p class="sp-muted">$1,360 of $2,000 saved</p><div class="sp-bar"><span></span></div>
+        <div class="sp-row"><span class="sp-chip">Travel</span><span class="sp-chip">Auto-save on</span></div>
+        <div class="sp-statuses"><span class="sp-status" style="background:oklch(.93 .06 150);color:oklch(.38 .1 150)">On track</span><span class="sp-status" style="background:oklch(.94 .07 80);color:oklch(.42 .09 70)">2 weeks left</span></div></section>
+      <section class="sp-card"><h2 class="sp-h">Get alerts</h2><label class="sp-label" for="sp-mail-${s.k}">Email</label><input id="sp-mail-${s.k}" class="sp-input" placeholder="you@example.com">
+        <div class="sp-row" style="justify-content:space-between"><span class="sp-muted">Large purchases only</span><span class="sp-toggle"></span></div>
+        <button class="sp-btn sp-btn--primary">Save preferences</button></section>
+    </div>
+    <div class="sp-toast">Transfer sent to Kiosk Bakery <b>Undo</b></div></div>`,
+  landing: (s) => `<div class="sp"><nav class="sp-nav"><b>${s.name}</b><span>Product</span><span>Pricing</span><span>Docs</span><button class="sp-btn sp-btn--primary">Sign up</button></nav>
+    <section class="sp-land"><span class="sp-chip">New · Shared budgets</span><h1>Money that moves <span>at your speed.</span></h1>
+      <p>Send, save and split with anyone in seconds. No fees on transfers between friends.</p>
+      <div class="sp-row"><button class="sp-btn sp-btn--primary">Open an account</button><button class="sp-btn">See how it works</button></div></section>
+    <div class="sp-feats">${[["⚡", "Instant transfers", "Money arrives before the coffee does."], ["◎", "Goals that save themselves", "Round up every purchase toward a trip."], ["⌂", "Built for two", "Shared cards with separate limits."]]
+      .map(([i, h, p]) => `<section class="sp-card"><span class="sp-feat-ico">${i}</span><h2 class="sp-h">${h}</h2><p class="sp-muted">${p}</p></section>`).join("")}</div></div>`,
+  mobile: (s) => `<div class="sp-phone-wrap">${[0, 1].map((n) => `<div class="sp-phone"><div class="sp-phone-top"><span>9:41</span><span>●●● ▮</span></div>
+    <div class="sp-phone-body">${n === 0
+      ? `<span class="sp-muted">Good evening, Ana</span><div class="sp-wallet"><span class="sp-over">Boarding pass</span><div><div class="big">LIS → CPH</div><p style="margin:6px 0 0;opacity:.85">Gate B12 · Boards 19:40</p></div><div class="sp-row" style="justify-content:space-between"><span>Seat 14C</span><span class="sp-chip" style="background:var(--s-on-hero);color:var(--s-hero)">On time</span></div></div><button class="sp-btn sp-btn--primary" style="width:100%">Add to wallet</button>`
+      : `<h2 class="sp-h" style="font-size:26px">Cards</h2><section class="sp-card"><ul class="sp-list"><li><span><i class="sp-av">KB</i>Kiosk Bakery</span><span>−$8.40</span></li><li><span><i class="sp-av">MT</i>Metro</span><span>−$2.90</span></li><li><span><i class="sp-av">PL</i>Payroll</span><span>+$3,200</span></li></ul></section><div class="sp-row"><span class="sp-chip">Freeze card</span><span class="sp-chip">Limits</span></div>`}
+    </div><div class="sp-tabbar"><span class="${n === 0 ? "on" : ""}">Home</span><span class="${n === 1 ? "on" : ""}">Cards</span><span>Pay</span><span>Me</span></div></div>`).join("")}</div>`,
+  tokens: (s) => { const tk = tokens(s, state.mode); return `<div class="sp sp-tok">
+    <section><h2>Primary</h2><div class="sp-ramp">${ramp(s).map((c, i) => `<div style="background:${c};color:${i < 5 ? "oklch(.25 .02 0)" : "oklch(.97 0 0)"}">${i === 0 ? 50 : i * 100 - (i === 10 ? 50 : 0)}</div>`).join("")}</div></section>
+    <section><h2>Type scale</h2><div class="sp-scale">${[["display.lg", 1.3], ["display.sm", 1], ["headline", .62], ["title", .4], ["body", .26]].map(([n, k]) => `<div style="font-size:calc(var(--s-display-size) * ${k})"><code>${n}</code>Lisbon by night</div>`).join("")}</div></section>
+    <section><h2>Corners</h2><div class="sp-radii">${["r", "r-lg", "r-chip", "r-btn"].map((n) => `<div style="border-radius:var(--s-${n})">${n} · ${tk[n]}</div>`).join("")}</div></section>
+    <section><h2>Elevation</h2><div class="sp-shadows">${[.3, .6, 1].map((k, i) => `<div style="box-shadow:var(--s-shadow);border-radius:var(--s-r);opacity:${.5 + k / 2}">level ${i + 1}</div>`).join("")}</div></section>
+    <section><h2>Spacing</h2><div class="sp-space">${[4, 8, 12, 16, 24, 32, 48].map((n) => `<div><i style="width:${n * 3}px"></i>space.${n / 4} · ${n}px</div>`).join("")}</div></section></div>`; },
+};
+
+/* ── App state ── */
+const state = {
+  screen: "start", depth: "sprout", tpl: "app", mode: "light", drawer: null, picksHidden: false, shuffle: 0, compare: null,
+  seed: { k: "main", name: "Northwind", h: 264, c: .19, font: 0, kind: "saas", traits: { bold: .7, sharp: .35 } , styles: [] },
+  versions: [],
+};
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+
+function paint(el, seed, mode = state.mode, tpl = state.tpl) {
+  el.innerHTML = `<div class="sys" style="${styleOf(seed, mode)}">${SPEC[tpl]({ ...seed, k: el.id || "x" })}</div>`;
+}
+function setHue() {
+  document.documentElement.style.setProperty("--h", state.seed.h);
+  document.documentElement.style.setProperty("--c", Math.min(.2, Math.max(.06, state.seed.c)));
+}
+
+/* Start screen */
+function renderStart() {
+  $("#orbs").innerHTML = COLORS.map((c, i) => `<button class="orb" style="background:${ok(.6, c.c, c.h)}" aria-label="${c.name}" aria-pressed="${state.seed.h === c.h && state.seed.c === c.c}" data-orb="${i}"></button>`).join("") +
+    `<label class="orb orb-custom" title="Any color"><input type="color" id="customColor" value="#3b5bdb" aria-label="Pick any color"></label>`;
+  $("#kinds").innerHTML = KINDS.map(([id, n, d]) => `<button class="kind" data-kind="${id}" aria-pressed="${state.seed.kind === id}"><b>${n}</b><small>${d}</small></button>`).join("");
+  $("#rampWall").innerHTML = ramp(state.seed).map((c) => `<span style="background:${c}"></span>`).join("");
+  const p = $("#startPreview"); p.id = "startPreview"; paint(p, state.seed, "light", "app");
+}
+document.addEventListener("click", (e) => {
+  const orb = e.target.closest("[data-orb]");
+  if (orb) { const c = COLORS[+orb.dataset.orb]; Object.assign(state.seed, { h: c.h, c: c.c }); setHue(); renderStart(); }
+  const kind = e.target.closest("[data-kind]");
+  if (kind) { state.seed.kind = kind.dataset.kind; Object.assign(state.seed.traits, { dense: { saas: .6, devtool: .85, editorial: .2, marketing: .15 }[state.seed.kind] ?? .45 }); renderStart(); }
+});
+document.addEventListener("input", (e) => {
+  if (e.target.id === "customColor") {
+    const hex = e.target.value; const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b); let h = 0;
+    if (mx !== mn) h = mx === r ? (g - b) / (mx - mn) % 6 : mx === g ? (b - r) / (mx - mn) + 2 : (r - g) / (mx - mn) + 4;
+    Object.assign(state.seed, { h: Math.round(((h * 60) + 360 + 8) % 360), c: Math.max(.04, (mx - mn) * .22) }); setHue();
+    $("#rampWall").innerHTML = ramp(state.seed).map((c) => `<span style="background:${c}"></span>`).join("");
+    paint($("#startPreview"), state.seed, "light", "app");
+  }
+});
+
+/* Studio */
+const AREAS = [
+  { id: "color", ico: "◑", name: "Color", count: 36, sum: (s) => `${COLORS.find((c) => c.h === s.h)?.name ?? "Custom"} · analogous · vivid` },
+  { id: "type", ico: "Aa", name: "Typography", count: 34, sum: (s) => `${FONTS[s.font].name} · ${Math.round(tokens(s).weight)} headings` },
+  { id: "shape", ico: "◻", name: "Shape", count: 12, sum: (s) => `${tokens(s).r} corners` },
+  { id: "space", ico: "↔", name: "Space & layout", count: 15, sum: (s) => (s.traits.dense ?? .5) > .6 ? "Compact" : (s.traits.dense ?? .5) < .35 ? "Spacious" : "Comfortable" },
+  { id: "depth", ico: "◧", name: "Depth", count: 8, sum: (s) => (s.traits.depth ?? .5) < .15 ? "Flat" : "Soft shadows" },
+  { id: "motion", ico: "↝", name: "Motion & states", count: 19, sum: () => "Standard · color shift on hover" },
+  { id: "components", ico: "▣", name: "Components", count: 20, sum: () => "Filled buttons · outlined inputs" },
+  { id: "voice", ico: "❝", name: "Voice & access", count: 18, sum: () => "Neutral · WCAG AA" },
+];
+const FINE = {
+  color: [["Ramp steps", "11"], ["Lightness curve", "Balanced"], ["Saturation curve", "Peaks in the middle"], ["Neutral temperature", "Brand-tinted"], ["Surface levels", "3"], ["Status colors", "Generated"], ["Dark mode style", "Dim grey"], ["Gamut", "sRGB"]],
+  type: [["Base size", "16px"], ["Scale ratio", "1.25"], ["Line height", "1.5"], ["Heading line height", "1.2"], ["Numerals", "Tabular"], ["Link underline", "Always"], ["Fluid type", "Off"], ["Measure", "68ch"]],
+  shape: [["Card rounding", "1.5×"], ["Chip shape", "Pill"], ["Nested radius rule", "On"], ["Corner shape", "Round"], ["Avatar shape", "Circle"]],
+  space: [["Base unit", "4px"], ["Progression", "Hybrid"], ["Table density", "Same"], ["Grid columns", "12"], ["Gutter", "24px"], ["Max width", "1200px"]],
+  depth: [["Light direction", "Top"], ["Shadow size", "1×"], ["Levels", "4"], ["Glass blur", "Off"], ["Noise texture", "Off"]],
+  motion: [["Speed", "1×"], ["Easing", "Standard"], ["Exit speed", "0.75×"], ["Stagger", "30ms"], ["Pressed", "Color shift"], ["Reduced motion", "Fade only"]],
+  components: [["Button variants", "3"], ["Button case", "Sentence"], ["Input label", "Above"], ["Card header", "Plain"], ["Tab indicator", "Underline"], ["Navigation", "Sidebar"]],
+  voice: [["Contrast target", "WCAG AA"], ["High-contrast modes", "Off"], ["Smallest text", "11px"], ["Voice", "Neutral"], ["Emoji", "Off"], ["Locale", "en-US"]],
+};
+let openArea = "type";
+
+function trait([id, lo, hi]) {
+  const v = state.seed.traits[id]; const set = v !== undefined;
+  return `<div class="trait ${set ? "" : "untouched"}"><div class="trait-ends"><span>${lo}</span>${set ? "" : `<span class="open">open · options explore it</span>`}<span>${hi}</span></div>
+    <input class="big" type="range" min="0" max="1" step="0.01" value="${set ? v : .5}" data-trait="${id}" aria-label="${lo} to ${hi}"></div>`;
+}
+function areaBody(a) {
+  const s = state.seed, t = s.traits;
+  const tiles = {
+    color: `<div class="tiles">${COLORS.slice(0, 4).map((c, i) => `<button class="tile" data-orb="${i}" aria-pressed="${s.h === c.h}"><span class="orb" style="width:26px;height:26px;background:${ok(.6, c.c, c.h)}"></span>${c.name}</button>`).join("")}</div>
+      ${slider("Vibrance", "bold", "")}`,
+    type: `<div class="tiles">${FONTS.slice(0, 4).map((f, i) => `<button class="tile" data-font="${i}" aria-pressed="${s.font === i}"><span class="aa" style="font-family:${f.d};font-weight:700">Aa</span>${f.name}</button>`).join("")}</div>
+      ${slider("Heading weight", "heavy", "")}${slider("Scale drama", "bold", "")}`,
+    shape: `<div class="tiles">${[["Pill", .02], ["Round", .3], ["Soft", .6], ["Sharp", 1]].map(([n, v]) => `<button class="tile" data-set="sharp:${v}" aria-pressed="${Math.abs((t.sharp ?? .5) - v) < .12}"><span class="shape" style="border-radius:${Math.round(lerp(14, 0, v))}px"></span>${n}</button>`).join("")}</div>`,
+    space: `<div class="tiles">${[["Spacious", .1], ["Comfy", .45], ["Compact", .8], ["Tight", 1]].map(([n, v]) => `<button class="tile" data-set="dense:${v}" aria-pressed="${Math.abs((t.dense ?? .5) - v) < .15}"><span style="display:grid;gap:${Math.round(lerp(6, 1, v))}px">${"<i style='display:block;width:30px;height:4px;border-radius:2px;background:currentColor'></i>".repeat(3)}</span>${n}</button>`).join("")}</div>`,
+    depth: `<div class="tiles">${[["Flat", 0], ["Soft", .45], ["Lifted", .75], ["Deep", 1]].map(([n, v]) => `<button class="tile" data-set="depth:${v}" aria-pressed="${Math.abs((t.depth ?? .5) - v) < .15}"><span class="shape" style="border:0;border-radius:6px;background:var(--glass-solid);box-shadow:0 ${v * 6}px ${v * 14}px oklch(0 0 0 / ${.1 + v * .2})"></span>${n}</button>`).join("")}</div>`,
+    motion: `<div class="tiles">${["Still", "Subtle", "Standard", "Springy"].map((n, i) => `<button class="tile" aria-pressed="${i === 2}"><span style="font-size:18px">${["·", "→", "⇢", "↯"][i]}</span>${n}</button>`).join("")}</div>`,
+    components: `<div class="tiles">${["Filled", "Tonal", "Outline", "Pill"].map((n, i) => `<button class="tile" aria-pressed="${i === 0}"><span style="width:38px;height:16px;border-radius:5px;${i === 0 ? "background:var(--accent)" : i === 1 ? "background:var(--accent-soft)" : i === 2 ? "border:2px solid var(--accent)" : "background:var(--accent);border-radius:99px"}"></span>${n}</button>`).join("")}</div>`,
+    voice: `<div class="tiles">${["Friendly", "Neutral", "Formal", "Playful"].map((n, i) => `<button class="tile" aria-pressed="${i === 1}"><span style="font-size:16px">${["☺", "◦", "§", "✦"][i]}</span>${n}</button>`).join("")}</div>`,
+  }[a.id];
+  const fine = state.depth === "craft"
+    ? `<div class="fine"><span class="eyebrow" style="margin-bottom:4px">All ${a.count} settings</span>${FINE[a.id].map(([k, v], i) => `<div class="fine-row"><span>${k}</span><span>${v}${i % 3 === 0 ? `<em class="prov">you</em>` : i % 3 === 1 ? `<em class="prov">preset</em>` : ""}</span></div>`).join("")}<button class="more" style="margin-top:6px">Show ${a.count - FINE[a.id].length} more</button></div>`
+    : `<button class="more">Fine-tune all ${a.count} settings →</button>`;
+  return `${tiles}${fine}`;
+}
+function slider(label, id, unit) {
+  const v = state.seed.traits[id] ?? .5;
+  return `<div><div class="ctl-label"><span>${label}</span><output>${Math.round(v * 100)}${unit || "%"}</output></div><input class="thin" type="range" min="0" max="1" step=".01" value="${v}" data-trait="${id}" aria-label="${label}"></div>`;
+}
+
+function renderDeck() {
+  const d = state.depth;
+  let html = "";
+  if (d === "sprout") {
+    html = `<h2>Shape the vibe</h2><p class="deck-intro">Drag a slider and the whole system follows. Leave one alone and the options below will explore it for you.</p>
+      ${TRAITS.slice(0, 5).map(trait).join("")}
+      <details><summary class="more" style="cursor:pointer">3 more personality sliders</summary><div style="display:grid;gap:20px;margin-top:16px">${TRAITS.slice(5).map(trait).join("")}</div></details>
+      <div style="display:grid;gap:10px"><span class="eyebrow">Start from a style</span><div class="style-chips">${STYLES.map((st) => `<button class="style-chip" data-style="${st.id}" aria-pressed="${state.seed.styles.includes(st.id)}"><i style="background:${ok(.6, state.seed.c, state.seed.h)};border-radius:${st.t.sharp > .9 ? 0 : st.t.sharp < .1 ? 13 : 8}px;${st.t.depth > .5 ? "box-shadow:0 3px 6px oklch(0 0 0/.25)" : ""}"></i>${st.name}</button>`).join("")}</div></div>`;
+  } else {
+    html = `<h2>${d === "grow" ? "Make it yours" : "Every detail"}</h2><p class="deck-intro">${d === "grow" ? "One area at a time. Each opens with a few visual choices; the rest stay tucked away until you want them." : "All 172 settings, grouped. The tag on each value says where it came from."}</p>
+      <div class="areas">${AREAS.map((a) => `<details class="area" data-area="${a.id}" ${openArea === a.id ? "open" : ""}><summary><span class="area-ico">${a.ico}</span><span style="min-width:0"><span class="area-title">${a.name}</span><div class="area-sum">${a.sum(state.seed)}</div></span><span class="area-count">${d === "craft" ? a.count : ""}</span></summary><div class="area-body">${openArea === a.id ? areaBody(a) : ""}</div></details>`).join("")}</div>`;
+  }
+  $("#deck").innerHTML = html;
+}
+
+function variants() {
+  const base = state.seed; const out = [];
+  let r = 9301 + state.shuffle * 49297;
+  const rnd = () => ((r = (r * 9301 + 49297) % 233280) / 233280);
+  for (let i = 0; i < 4; i++) {
+    const tr = { ...base.traits };
+    for (const [id] of TRAITS) if (!(id in base.traits) || state.depth !== "sprout") if (rnd() > .35 && !(id in base.traits)) tr[id] = Math.round(((i + rnd()) / 4) * 100) / 100;
+    tr.sharp = tr.sharp ?? [.05, .4, .7, 1][i];
+    out.push({ ...base, traits: tr, font: (base.font + i + state.shuffle) % FONTS.length });
+  }
+  return out;
+}
+function renderPicks() {
+  const vs = variants();
+  $("#pickRow").innerHTML = vs.map((v, i) => `<button class="pick" data-pick="${i}" title="Use this option"><div class="mini" id="mini${i}"></div></button>`).join("");
+  vs.forEach((v, i) => {
+    const t = tokens(v, state.mode);
+    $("#mini" + i).innerHTML = `<div style="${styleOf(v, state.mode)};position:absolute;inset:0;background:var(--s-bg);padding:7px;display:grid;gap:5px;align-content:start">
+      <div style="background:var(--s-hero);border-radius:calc(var(--s-r-lg) / 3);height:32px;padding:5px 7px;display:grid;align-content:end"><div style="font:${t.weight} 13px/1 ${t.display};color:var(--s-on-hero);letter-spacing:${t.track}">$12,480</div></div>
+      <div style="display:flex;gap:4px"><span style="flex:1;height:12px;border-radius:calc(var(--s-r-btn) / 2);background:var(--s-primary)"></span><span style="flex:1;height:12px;border-radius:calc(var(--s-r-btn) / 2);border:1px solid var(--s-border)"></span></div></div>`;
+  });
+  state._variants = vs;
+  $("#picks").classList.toggle("hidden", state.depth === "craft" || state.picksHidden || !!state.compare);
+}
+function renderCanvas() {
+  paint($("#layerAfter"), state.seed);
+  const cmp = !!state.compare;
+  ["#layerBefore", "#splitHandle", "#splitRange", "#splitTags"].forEach((s) => $(s).classList.toggle("hidden", !cmp));
+  if (cmp) { paint($("#layerBefore"), state.compare.seed); $("#splitBeforeLabel").textContent = state.compare.msg; }
+}
+function renderTop() {
+  $("#sysName").textContent = state.seed.name;
+  $("#sysDot").style.background = `conic-gradient(${ramp(state.seed).slice(2, 9).join(",")})`;
+  const unsaved = state.dirty;
+  $("#unsavedDot").classList.toggle("hidden", !unsaved);
+  $("#sysState").textContent = `main · ${unsaved ? `${unsaved} unsaved change${unsaved > 1 ? "s" : ""}` : "all saved"}`;
+  $$("[data-depth]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.depth === state.depth));
+  $$("[data-tpl]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.tpl === state.tpl));
+  $$("[data-mode]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.mode === state.mode));
+}
+function thumb(seed) {
+  const t = tokens(seed, "light");
+  return `<div class="vthumb" style="${styleOf(seed, "light")}"><div style="background:var(--s-hero);align-items:end;padding:4px 6px;font:${t.weight} 11px ${t.display};color:var(--s-on-hero)">Aa</div><div>${ramp(seed).filter((_, i) => i % 2).map((c) => `<span style="background:${c}"></span>`).join("")}</div></div>`;
+}
+function renderDrawer() {
+  const d = $("#drawer");
+  d.classList.toggle("hidden", !state.drawer);
+  if (state.drawer === "versions") {
+    d.innerHTML = `<div class="drawer-head"><h2>Versions</h2><button class="btn ghost" data-close>✕</button></div><div class="drawer-body">
+      <div class="seg sm" style="justify-self:start"><button aria-pressed="true">main</button><button aria-pressed="false">rounder-buttons</button><button aria-pressed="false">+ Branch</button></div>
+      ${state.dirty ? `<div class="save-box"><b>${state.dirty} unsaved change${state.dirty > 1 ? "s" : ""}</b>
+        <div class="change"><span>Calm ↔ Bold</span><span>0.55 → ${(state.seed.traits.bold ?? .5).toFixed(2)}</span></div>
+        <div class="change"><span>Type style</span><span>${FONTS[state.seed.font].name}</span></div>
+        <input id="msg" placeholder="Name this version, e.g. Bolder hero" aria-label="Version name"><button class="btn primary" data-save>Save version</button></div>`
+        : `<div class="save-box"><b>Everything is saved</b><span style="color:var(--muted);font-size:13px">Change anything and it shows up here.</span></div>`}
+      <span class="eyebrow">History · tap one to compare with now</span>
+      <div class="timeline">${state.versions.map((v, i) => `<button class="version ${i === 0 ? "current" : ""}" data-compare="${i}">${thumb(v.seed)}<span class="vmeta"><b>${v.msg}</b><small>${v.when}</small><span class="refs">${v.refs.map((r) => `<span class="ref ${r.startsWith("v") ? "tag" : ""}">${r}</span>`).join("")}</span></span></button>`).join("")}</div>
+      ${state.compare ? `<button class="btn" data-uncompare>Stop comparing</button><button class="btn ghost">Restore “${state.compare.msg}”</button>` : ""}
+    </div>`;
+  } else if (state.drawer === "export") {
+    const fmt = state.fmt || "md";
+    const t = tokens(state.seed, "light");
+    const code = {
+      md: `<span class="k"># ${state.seed.name} design system</span>\n\nGenerated by TokenSeed for a ${state.seed.kind} product.\nModes: light, dark. CSS variables use --ts-.\n\n<span class="k">## Rules for building UI</span>\n1. Use semantic tokens. Never hard-code values.\n2. Pair every foreground with its background.\n\n<span class="k">## Color roles</span>\n| color.primary.default | <span class="v">${t.primary}</span> |`,
+      css: `<span class="k">:root</span> {\n  --ts-color-primary-default: <span class="v">${t.primary}</span>;\n  --ts-color-surface-page: <span class="v">${t.bg}</span>;\n  --ts-radius-control: <span class="v">${t.r}</span>;\n  --ts-font-family-heading: <span class="v">${t.display}</span>;\n}\n<span class="k">[data-theme="dark"]</span> { … }`,
+      tw: `<span class="k">@import</span> "./tokens.css";\n\n<span class="k">@theme inline</span> {\n  --color-primary-default: var(--ts-color-primary-default);\n  --radius-control: var(--ts-radius-control);\n}`,
+      dtcg: `{\n  <span class="k">"color"</span>: {\n    <span class="k">"primary"</span>: {\n      <span class="k">"default"</span>: { "$type": "color", "$value": "{palette.primary.600}" }\n    }\n  }\n}`,
+    }[fmt];
+    d.innerHTML = `<div class="drawer-head"><h2>Take it with you</h2><button class="btn ghost" data-close>✕</button></div><div class="drawer-body">
+      ${[["md", "MD", "DESIGN.md", "Paste into your AI agent's context"], ["css", "CSS", "CSS variables", "Light, dark and high contrast"], ["tw", "TW", "Tailwind v4", "A theme over the CSS variables"], ["dtcg", "{ }", "Design tokens JSON", "W3C standard, for Figma and Style Dictionary"]]
+        .map(([id, i, n, s]) => `<button class="export-card" data-fmt="${id}" aria-pressed="${fmt === id}"><i>${i}</i><span><b>${n}</b><small>${s}</small></span></button>`).join("")}
+      <pre class="code">${code}</pre>
+      <div style="display:flex;gap:8px"><button class="btn primary" style="flex:1">Download</button><button class="btn" id="copyBtn">Copy</button></div>
+      <button class="btn ghost">Download the whole system (.tokenseed)</button></div>`;
+  }
+}
+function renderStudio() { renderTop(); renderDeck(); renderCanvas(); renderPicks(); renderDrawer(); }
+
+/* Library */
+const LIB = [
+  { name: "Northwind", h: 264, c: .19, font: 0, traits: { bold: .7, sharp: .35 }, meta: "6 versions · 2 branches · edited just now" },
+  { name: "Harbor Health", h: 205, c: .13, font: 3, traits: { bold: .3, sharp: .1, depth: .6, playful: .7 }, meta: "12 versions · v2.1 · yesterday" },
+  { name: "Fieldnotes", h: 48, c: .15, font: 2, traits: { bold: .4, sharp: .85, warm: .9, depth: 0 }, meta: "3 versions · forked from Daily Press" },
+  { name: "Volt", h: 340, c: .21, font: 1, traits: { bold: 1, sharp: .15, loud: 1 }, meta: "9 versions · 3 branches · 2 days ago" },
+  { name: "Ledger", h: 270, c: .05, font: 4, traits: { bold: .2, sharp: .8, dense: .9, depth: .2 }, meta: "21 versions · v4.0 · last week" },
+];
+function renderLibrary() {
+  $("#libGrid").innerHTML = LIB.map((s, i) => { const t = tokens({ ...s, kind: "saas" }, "light"); return `<button class="poster" data-open="${i}">
+    <div class="poster-art" style="${styleOf(s, "light")};background:var(--s-hero);color:var(--s-on-hero);padding:22px;display:grid;align-content:space-between">
+      <span style="font:600 11px var(--font-ui);letter-spacing:.1em;text-transform:uppercase;opacity:.8">${FONTS[s.font].name} · ${t.r} corners</span>
+      <span style="font-family:${t.display};font-weight:${t.weight};font-size:46px;line-height:.9;letter-spacing:${t.track}">${s.name}</span>
+      <span style="display:flex;height:14px;border-radius:7px;overflow:hidden">${ramp(s).map((c) => `<i style="flex:1;background:${c}"></i>`).join("")}</span></div>
+    <div class="poster-info"><b>${s.name}</b><small>${s.meta}</small></div></button>`; }).join("") + `<button class="poster new" data-goto="start">+ Grow a new system</button>`;
+}
+
+/* Navigation and events */
+function go(screen) {
+  state.screen = screen;
+  ["start", "studio", "library"].forEach((s) => $("#" + s).classList.toggle("hidden", s !== screen));
+  if (screen === "start") renderStart();
+  if (screen === "studio") renderStudio();
+  if (screen === "library") renderLibrary();
+  window.scrollTo(0, 0);
+}
+function touch(n = 1) { state.dirty = (state.dirty || 0) + n; }
+document.addEventListener("click", (e) => {
+  const el = (s) => e.target.closest(s);
+  if (el("#go")) {
+    state.seed.name = ({ saas: "Northwind", marketing: "Brightline", mobile: "Pocket", commerce: "Goodshop", editorial: "Fieldnotes", devtool: "Kernel" })[state.seed.kind];
+    state.versions = [
+      { msg: "Bolder hero", when: "2 min ago", refs: ["main"], seed: { ...state.seed, traits: { ...state.seed.traits, bold: .55 } } },
+      { msg: "Warmer neutrals", when: "1 hour ago", refs: ["v1.0"], seed: { ...state.seed, traits: { ...state.seed.traits, bold: .45, warm: .8 } } },
+      { msg: "First growth", when: "Today, 9:12", refs: [], seed: { ...state.seed, font: (state.seed.font + 2) % FONTS.length, traits: { bold: .4, sharp: .6 } } },
+    ];
+    state.dirty = 2; go("studio"); return;
+  }
+  const g = el("[data-goto]"); if (g) { go(g.dataset.goto); return; }
+  const op = el("[data-open]"); if (op) { const s = LIB[+op.dataset.open]; Object.assign(state.seed, { name: s.name, h: s.h, c: s.c, font: s.font, traits: { ...s.traits } }); setHue(); state.dirty = 0; if (!state.versions.length) state.versions = [{ msg: "Latest", when: "just now", refs: ["main"], seed: { ...state.seed } }]; go("studio"); return; }
+  if (state.screen !== "studio") return;
+  const dp = el("[data-depth]"); if (dp) { state.depth = dp.dataset.depth; renderStudio(); }
+  const tp = el("[data-tpl]"); if (tp) { state.tpl = tp.dataset.tpl; renderTop(); renderCanvas(); }
+  const md = el("[data-mode]"); if (md) { state.mode = md.dataset.mode; renderTop(); renderCanvas(); renderPicks(); }
+  const pk = el("[data-pick]"); if (pk) { state.seed = { ...state._variants[+pk.dataset.pick] }; touch(); renderStudio(); }
+  if (el("#shuffle")) { state.shuffle++; renderPicks(); }
+  if (el("#pickHide")) { state.picksHidden = true; renderPicks(); }
+  const dr = el("[data-drawer]"); if (dr) { state.drawer = state.drawer === dr.dataset.drawer ? null : dr.dataset.drawer; if (state.drawer !== "versions") state.compare = null; renderDrawer(); renderCanvas(); renderPicks(); }
+  if (el("[data-close]")) { state.drawer = null; state.compare = null; renderDrawer(); renderCanvas(); renderPicks(); }
+  const cp = el("[data-compare]"); if (cp) { state.compare = state.versions[+cp.dataset.compare]; renderCanvas(); renderPicks(); renderDrawer(); }
+  if (el("[data-uncompare]")) { state.compare = null; renderCanvas(); renderPicks(); renderDrawer(); }
+  if (el("[data-save]")) { const m = $("#msg").value.trim() || "Untitled change"; state.versions.unshift({ msg: m, when: "just now", refs: ["main"], seed: { ...state.seed, traits: { ...state.seed.traits } } }); state.versions[1].refs = state.versions[1].refs.filter((r) => r !== "main"); state.dirty = 0; renderTop(); renderDrawer(); }
+  const fm = el("[data-fmt]"); if (fm) { state.fmt = fm.dataset.fmt; renderDrawer(); }
+  if (el("#copyBtn")) { const t = $("#drawer pre").innerText; navigator.clipboard?.writeText(t).then(() => { $("#copyBtn").textContent = "Copied"; }, () => {}); }
+  const st = el("[data-style]"); if (st) { const s = STYLES.find((x) => x.id === st.dataset.style); const on = state.seed.styles.includes(s.id); state.seed.styles = on ? state.seed.styles.filter((x) => x !== s.id) : [...state.seed.styles, s.id]; if (!on) { Object.assign(state.seed.traits, s.t); state.seed.font = s.font; } touch(); renderStudio(); }
+  const fo = el("[data-font]"); if (fo) { state.seed.font = +fo.dataset.font; touch(); renderStudio(); }
+  const ss = el("[data-set]"); if (ss) { const [k, v] = ss.dataset.set.split(":"); state.seed.traits[k] = +v; touch(); renderStudio(); }
+  if (el("[data-orb]")) { touch(); renderStudio(); }
+  const ar = el(".area summary"); if (ar) { e.preventDefault(); const id = ar.parentElement.dataset.area; openArea = openArea === id ? null : id; renderDeck(); }
+  if (el("#themeBtn")) { const r = document.documentElement; const dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
+});
+let rafId = 0;
+document.addEventListener("input", (e) => {
+  if (e.target.dataset.trait) {
+    state.seed.traits[e.target.dataset.trait] = +e.target.value;
+    e.target.closest(".trait")?.classList.remove("untouched");
+    const out = e.target.parentElement.querySelector("output"); if (out) out.textContent = Math.round(e.target.value * 100) + "%";
+    cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(() => { if (state.screen === "studio") { renderCanvas(); renderTop(); renderPicks(); } });
+  }
+  if (e.target.id === "splitRange") $("#canvas").style.setProperty("--split", e.target.value + "%");
+});
+document.addEventListener("change", (e) => { if (e.target.dataset.trait) { touch(); renderTop(); if (state.depth === "sprout") renderDeck(); } });
+
+setHue();
+go(location.hash === "#studio" ? "studio" : location.hash === "#library" ? "library" : "start");
+if (location.hash === "#studio") { $("#go").click(); }
+</script>
+
+</html>

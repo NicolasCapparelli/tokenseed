@@ -5,6 +5,7 @@ import { flatten, type ColorValue, type ModeName, type Token } from "../tokens";
 import { cssVarName } from "./css";
 import { deepResolve } from "./dtcg";
 
+const fmt = (metric: string, v: number) => (metric === "apca" ? `Lc ${v}` : `${v}:1`);
 const row = (cells: string[]) => `| ${cells.map((c) => c.replace(/\|/g, "\\|")).join(" | ")} |`;
 const table = (head: string[], rows: string[][]) =>
   [row(head), row(head.map(() => "---")), ...rows.map(row)].join("\n");
@@ -100,6 +101,17 @@ export function toDesignMd(system: GeneratedSystem, opts: { prefix?: string } = 
   for (const [p, t] of themed(first!).filter(([, t]) => t.$type === "shadow")) out.push(`- \`${p}\`: ${t.$description ?? ""}`);
   out.push("");
 
+  if (system.extras.length) {
+    out.push("## Other values", "", "Values with no DTCG token type. They export as CSS custom properties.", "");
+    out.push(table(["CSS variable", "Mode", "Value", "Use"], system.extras.map((e) => [`\`--${prefix}-${e.name}\``, e.mode ?? "all", `\`${e.value}\``, e.description ?? ""])), "");
+  }
+  const metaEntries = Object.entries(system.meta);
+  if (metaEntries.length) {
+    out.push("## Conventions", "");
+    for (const [k, v] of metaEntries) out.push(`- ${k}: ${String(v)}`);
+    out.push("");
+  }
+
   out.push("## Components", "");
   for (const r of system.recipes) {
     out.push(`### ${r.name}`, "", r.description, "");
@@ -114,7 +126,7 @@ export function toDesignMd(system: GeneratedSystem, opts: { prefix?: string } = 
   out.push("## Accessibility checks", "");
   out.push(
     failing.length
-      ? failing.map((c) => `- FAIL (${c.mode}): \`${c.foreground}\` on \`${c.background}\` is ${c.ratio}:1, needs ${c.required}:1`).join("\n")
+      ? failing.map((c) => `- FAIL (${c.mode}): \`${c.foreground}\` on \`${c.background}\` is ${fmt(c.metric, c.value)}, needs ${fmt(c.metric, c.required)}`).join("\n")
       : `All ${system.checks.length} contrast checks pass (text target ${values["color.contrast"]}).`,
     "",
   );

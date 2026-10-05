@@ -1,6 +1,7 @@
 import type { Influence, Trait } from "./types";
 
 const V = "0.1";
+const V2 = "0.2";
 const lerp = (from: number, to: number): Influence => ({ kind: "lerp", from, to });
 const steps = (...s: [number, string | number | boolean][]): Influence => ({ kind: "steps", steps: s });
 
@@ -66,6 +67,58 @@ export const traits: Trait[] = [
     influences: {
       "type.style": steps([0, "serif"], [0.3, "editorial"], [0.55, "humanist"], [0.8, "geometric"]),
       "type.heading.tracking": lerp(0, -0.03),
+    },
+  },
+  {
+    id: "trait.crisp", label: ["Soft", "Crisp"], since: V2,
+    help: "Crisp systems draw hard edges: stronger borders, tighter shadows, snappier states.",
+    influences: {
+      "color.border.strength": lerp(0.25, 0.85),
+      "elevation.spread": lerp(1.4, 0.7),
+      "color.surface.contrast": lerp(0.35, 0.75),
+      "state.hover": steps([0, "overlay"], [0.5, "shift"], [0.85, "outline"]),
+    },
+  },
+  {
+    id: "trait.loud", label: ["Quiet", "Loud"], since: V2,
+    help: "Loud systems put brand color everywhere; quiet ones save it for actions.",
+    influences: {
+      "color.brand.usage": steps([0, "accents"], [0.4, "balanced"], [0.75, "immersive"]),
+      "color.gradient": steps([0, "none"], [0.65, "subtle"], [0.9, "bold"]),
+      "color.status.style": steps([0, "subtle"], [0.7, "solid"]),
+      "recipe.chip.fill": steps([0, "outline"], [0.35, "subtle"], [0.75, "solid"]),
+    },
+  },
+  {
+    id: "trait.geometric", label: ["Organic", "Geometric"], since: V2,
+    help: "Geometric systems use strict grids and pure shapes; organic ones feel hand-made.",
+    influences: {
+      "shape.corner": steps([0, "squircle"], [0.5, "round"], [0.9, "bevel"]),
+      "space.progression": steps([0, "geometric"], [0.4, "hybrid"], [0.75, "linear"]),
+      "icon.style": steps([0, "rounded"], [0.4, "outline"], [0.85, "sharp"]),
+      "color.lightnessCurve": steps([0, "airy"], [0.35, "balanced"]),
+    },
+  },
+  {
+    id: "trait.heavy", label: ["Light", "Heavy"], since: V2,
+    help: "Heavy systems use thicker strokes, weightier type and solid fills.",
+    influences: {
+      "type.body.weight": lerp(350, 450),
+      "border.width": lerp(1, 2),
+      "icon.stroke": lerp(1.25, 2.25),
+      "recipe.focus.width": lerp(1.5, 3),
+      "type.weights": steps([0, "minimal"], [0.35, "standard"], [0.75, "full"]),
+    },
+  },
+  {
+    id: "trait.dimensional", label: ["Flat", "Dimensional"], since: V2,
+    help: "Dimensional systems stack layers with shadows, depth and glass; flat ones stay on one plane.",
+    influences: {
+      "elevation.levels": lerp(3, 6),
+      "elevation.glass": lerp(0, 16),
+      "state.hover": steps([0, "shift"], [0.6, "lift"]),
+      "state.pressed": steps([0, "shift"], [0.6, "scale"]),
+      "color.dark.elevation": steps([0, "outlines"], [0.4, "lighter"], [0.8, "shadows"]),
     },
   },
 ];

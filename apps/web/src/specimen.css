@@ -12,7 +12,7 @@
   overflow: hidden;
 }
 .specimen--compact { padding: var(--ts-space-inset-xl); gap: var(--ts-space-gap-md); pointer-events: none; }
-.specimen--compact .sp-display { font-size: var(--ts-typography-headline-md-font-size); line-height: var(--ts-typography-headline-md-line-height); }
+.specimen--compact .sp-display { font-size: var(--ts-typography-headline-sm-font-size); line-height: var(--ts-typography-headline-sm-line-height); }
 .specimen--compact .sp-hero { padding: var(--ts-space-inset-lg); }
 .specimen--compact .sp-body { font-size: var(--ts-typography-body-sm-font-size); }
 
@@ -133,3 +133,49 @@
   padding: var(--ts-space-inset-sm) 0;
   border-top: var(--ts-border-width-default) solid var(--ts-color-border-subtle);
 }
+
+.sp-tabs { display: flex; gap: var(--ts-space-gap-xs); border-bottom: var(--ts-border-width-default) solid var(--ts-color-border-subtle); }
+.sp-tab {
+  padding: var(--ts-space-inset-sm) var(--ts-space-inset-md);
+  color: var(--ts-component-tabs-text, var(--ts-color-text-secondary));
+  border-radius: var(--ts-component-tabs-radius, 0);
+  font-size: var(--ts-typography-label-md-font-size);
+  font-weight: var(--ts-typography-label-md-font-weight);
+}
+.sp-tab--on {
+  color: var(--ts-component-tabs-selectedText, var(--ts-color-text-primary));
+  background: var(--ts-component-tabs-selectedBackground, transparent);
+  box-shadow: inset 0 calc(-1 * var(--ts-component-tabs-indicatorWidth, 2px)) 0 var(--ts-component-tabs-indicator, var(--ts-color-primary-default));
+}
+.sp-table { width: 100%; border-collapse: collapse; font-size: var(--ts-component-table-typography-font-size, var(--ts-typography-body-sm-font-size)); font-variant-numeric: var(--ts-font-variant-numeric, normal); }
+.sp-table th { text-align: left; background: var(--ts-component-table-headerBackground, transparent); font-weight: var(--ts-font-weight-strong); }
+.sp-table th, .sp-table td { height: var(--ts-component-table-rowHeight, 40px); padding: 0 var(--ts-space-inset-sm); border-bottom: var(--ts-border-width-default) solid var(--ts-component-table-divider, var(--ts-color-border-subtle)); }
+.sp-table tbody tr:nth-child(even) { background: var(--ts-component-table-rowAlt, transparent); }
+.sp-num { text-align: right !important; }
+.sp-chip {
+  border-radius: var(--ts-radius-chip);
+  padding: 2px var(--ts-space-inset-sm);
+  background: var(--ts-component-badge-fill, var(--ts-color-primary-subtle));
+  color: var(--ts-color-primary-onSubtle);
+  font-size: var(--ts-typography-label-sm-font-size);
+  font-weight: var(--ts-typography-label-sm-font-weight);
+}
+.sp-bars { display: flex; align-items: end; gap: 4px; height: 72px; }
+.sp-bars span { flex: 1; border-radius: var(--ts-radius-xs, 2px) var(--ts-radius-xs, 2px) 0 0; }
+.sp-ramp { display: flex; height: 12px; border-radius: var(--ts-radius-sm); overflow: hidden; }
+.sp-ramp span { flex: 1; }
+.sp-emphasis { background: var(--ts-color-emphasis-surface); color: var(--ts-color-emphasis-on); position: relative; overflow: hidden; }
+.sp-gradient { height: 56px; border-radius: var(--ts-radius-md); background: var(--ts-gradient-brand); }
+.sp-toast {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--ts-space-gap-sm);
+  background: var(--ts-component-toast-background, var(--ts-color-surface-overlay));
+  color: var(--ts-component-toast-text, var(--ts-color-text-primary));
+  border-radius: var(--ts-component-toast-radius, var(--ts-radius-md));
+  box-shadow: var(--ts-component-toast-shadow, none);
+  padding: var(--ts-space-inset-sm) var(--ts-space-inset-md);
+  font-size: var(--ts-typography-body-sm-font-size);
+}
+.sp-toast-action { background: none; border: none; color: inherit; font: inherit; font-weight: var(--ts-font-weight-strong); text-decoration: underline; cursor: pointer; }
+.sp-display, .sp-headline { text-transform: var(--ts-text-transform-heading, none); }
+.sp-btn { text-transform: var(--ts-button-text-transform, none); corner-shape: var(--ts-corner-shape, round); }
+.sp-card, .sp-hero { corner-shape: var(--ts-corner-shape, round); }

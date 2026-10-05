@@ -1,19 +1,10 @@
 import type { GeneratedSystem } from "@tokenseed/core";
 import { toCss, toDesignMd, toDtcgFiles, toTailwind } from "@tokenseed/core";
 import { useMemo, useState } from "react";
+import { download, slug } from "./download";
 
 type Tab = "css" | "tailwind" | "design.md" | "dtcg";
 
-function download(name: string, text: string) {
-  const url = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = name;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "system";
 
 export function ExportPanel({ system }: { system: GeneratedSystem }) {
   const [tab, setTab] = useState<Tab>("design.md");
@@ -44,7 +35,7 @@ export function ExportPanel({ system }: { system: GeneratedSystem }) {
         <button onClick={() => navigator.clipboard.writeText(content.text)}>Copy</button>
         <button onClick={() => download(`${slug(system.name)}-${content.name.replace(/\//g, "-")}`, content.text)}>Download</button>
         {tab === "dtcg" && (
-          <button onClick={() => download(`${slug(system.name)}.tokenseed.json`, JSON.stringify(Object.fromEntries(Object.entries(files).map(([k, v]) => [k, JSON.parse(v)])), null, 2))}>
+          <button onClick={() => download(`${slug(system.name)}-dtcg.json`, JSON.stringify(Object.fromEntries(Object.entries(files).map(([k, v]) => [k, JSON.parse(v)])), null, 2))}>
             Download all
           </button>
         )}

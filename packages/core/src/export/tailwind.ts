@@ -10,6 +10,7 @@ export function toTailwind(system: GeneratedSystem, opts: { prefix?: string; css
   const prefix = opts.prefix ?? "ts";
   const v = (path: string) => `var(${cssVarName(path, prefix)})`;
   const lines: string[] = [];
+  const gradients: string[] = [];
   const paths = new Set([
     ...flatten(system.base).map(([p]) => p),
     ...system.modes.flatMap((m) => flatten(system.themes[m] ?? {}).map(([p]) => p)),
@@ -24,6 +25,8 @@ export function toTailwind(system: GeneratedSystem, opts: { prefix?: string; css
     else if (head === "shadow") lines.push(`--shadow-${tail}: ${v(p)};`);
     else if (head === "font" && rest[0] === "family") lines.push(`--font-${rest.slice(1).join("-")}: ${v(p)};`);
     else if (head === "motion" && rest[0] === "easing") lines.push(`--ease-${rest.slice(1).join("-")}: ${v(p)};`);
+    else if (head === "blur") lines.push(`--blur-${tail}: ${v(p)};`);
+    else if (head === "gradient") gradients.push(`@utility bg-gradient-${tail} {\n  background-image: ${v(p)};\n}`);
     else if (head === "breakpoint") lines.push(`--breakpoint-${tail}: ${v(p)};`);
     else if (head === "space" && rest.length === 2) lines.push(`--spacing-${tail}: ${v(p)};`);
     else if (head === "typography") {
@@ -44,5 +47,6 @@ export function toTailwind(system: GeneratedSystem, opts: { prefix?: string; css
     ...lines.map((l) => `  ${l}`),
     "}",
     "",
+    ...gradients.flatMap((g) => [g, ""]),
   ].join("\n");
 }
