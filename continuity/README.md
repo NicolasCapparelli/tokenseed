@@ -17,12 +17,12 @@ TokenSeed has a working framework-free TypeScript generation engine and a functi
 - PRs #1 (core engine) and #2 (catalog/snapshots) were already merged.
 - The six completed commits on `claude/project-thread-5gq6qj`, ending at `b5adabc`, were fast-forwarded into the baseline after validation.
 - The superseded feature branches were removed locally and remotely after their commits were confirmed reachable from the baseline.
-- Local-only launch configuration and model-usage tooling/data were preserved under `.local/cleanup-2026-10-07/` with their original relative paths. The launch configuration also remains active at `.claude/launch.json`. These files are intentionally ignored and not published. The archive also holds `pre-cleanup.bundle`, including the prior refs and old stash, so the duplicate historical stash can be recovered if needed.
+- Local-only launch configuration and model-usage tooling/data were preserved under `.local/cleanup-2026-10-07/` with their original relative paths. The launch configuration also remains active at `.claude/launch.json`. These files are intentionally ignored and not published. The archive also holds the verified `pre-cleanup.bundle`, including the prior refs and old stash. The superseded stash remains in Git because automatic approval review rejected its deletion as outside the branch-cleanup authorization; it does not dirty the working tree.
 - The normal root scripts now invoke pinned pnpm through Corepack, avoiding a conflicting global pnpm installation. Git's unavailable filesystem monitor is disabled locally.
 
 ## Validation
 
-The Aurora branch passed all 80 tests (39 engine, 37 bridge, 4 web), workspace TypeScript checks and the production web build. The same root commands are checked after cleanup: `corepack pnpm test`, `corepack pnpm typecheck`, `corepack pnpm build`. Install with `corepack pnpm install --frozen-lockfile`; start with `corepack pnpm dev`.
+The Aurora branch passed all 80 tests (39 engine, 37 bridge, 4 web), workspace TypeScript checks and the production web build. The repaired root commands also passed: `corepack pnpm test`, `corepack pnpm typecheck`, `corepack pnpm build`. Install with `corepack pnpm install --frozen-lockfile`; start with `corepack pnpm dev`.
 
 Aurora contrast diagnostics are informational: many dark variants have secondary text at approximately 4.30-4.37:1 against bright/high container surfaces, below the 4.5 target. Bundle validation passes; this contrast issue remains open. The current automated web tests cover the Aurora adapter, not complete editor interactions or visual fidelity.
 
