@@ -2,6 +2,8 @@ node_modules
 dist
 *.tsbuildinfo
 .DS_Store
+.local/
+.claude/launch.json
 
 # Vendored Aurora snapshot ships its built dist
 !vendor/aurora/*/dist/

@@ -1,5 +1,7 @@
 # Handoff: new studio UI on top of Aurora
 
+> Current status (2026-10-07): see [continuity/README.md](../continuity/README.md). This document preserves the original implementation brief; its early branch/PR table is historical. The engine, snapshots, and Aurora integration are now consolidated on `master`.
+
 Written 2026-10-04 at the end of a long session, so the next one can start cold. Nico approved the concept UI ("let's just move forward with this, there's no need for another pass with a design agent"). The next phase is to **implement that UI, built on his Aurora library**, which first needs a TypeScript port.
 
 ## 1. Where things are

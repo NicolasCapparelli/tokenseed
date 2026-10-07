@@ -2,6 +2,8 @@
 
 Grow complete, portable design systems from a few inputs.
 
+Current project status and remaining work: [continuity/README.md](continuity/README.md).
+
 TokenSeed generates design systems (tokens, guidelines and component recipes) from a **seed**: a small
 file of inputs you can edit, regenerate, diff and fork. Systems are stored in the
 [W3C Design Tokens (DTCG) 2025.10](https://www.designtokens.org/) format and export to CSS variables,
